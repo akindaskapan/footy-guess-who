@@ -37,6 +37,40 @@ export default function Store() {
   const { user, profile, updateProfile } = useAuth();
   const state = loadGameState();
   const coins = profile?.coins ?? state.coins;
+  const [adCooldown, setAdCooldown] = useState(false);
+
+  useEffect(() => { initializeAds(); }, []);
+
+  const addGold = async (amount: number) => {
+    if (user && profile) {
+      await updateProfile({ coins: (profile.coins || 0) + amount });
+    } else {
+      const newState = { ...state, coins: state.coins + amount };
+      saveGameState(newState);
+    }
+  };
+
+  const handleBuyPack = (pack: typeof GOLD_PACKS[0]) => {
+    // In production, this would trigger a real IAP flow
+    hapticSuccess();
+    const total = pack.amount + pack.bonus;
+    addGold(total);
+    toast.success(`+${total} altın eklendi! ${pack.emoji}`);
+  };
+
+  const handleWatchAdForGold = async () => {
+    if (adCooldown) return;
+    const rewarded = await showRewardedAd();
+    if (!rewarded) {
+      toast.error("Reklam tamamlanamadı, tekrar deneyin.");
+      return;
+    }
+    hapticSuccess();
+    addGold(AD_REWARD_GOLD);
+    toast.success(`+${AD_REWARD_GOLD} altın kazanıldı! 🎬`);
+    setAdCooldown(true);
+    setTimeout(() => setAdCooldown(false), 30000); // 30s cooldown
+  };
 
   const today = new Date().toISOString().split("T")[0];
   const lastClaim = localStorage.getItem("gtf_last_daily_claim");
