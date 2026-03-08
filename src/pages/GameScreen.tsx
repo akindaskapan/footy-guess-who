@@ -418,8 +418,7 @@ export default function GameScreen() {
       addSkipCredit(1);
       setShowSkipPurchase(false);
       setSkipAdsWatched(0);
-      toast.success("3 reklam izledin! 1 cevap gösterme hakkı kazandın! 🎉");
-      handleExtraGuessSkip();
+      toast.success("🎉 1 cevap gösterme hakkı kazandın!", { duration: 3000 });
     } else {
       toast.success(`Reklam ${newCount}/${SKIP_ADS_REQUIRED} tamamlandı! 🎬`);
     }
