@@ -63,6 +63,8 @@ export default function CampaignScreen() {
 
   const userGold = profile?.coins ?? 0;
 
+  useEffect(() => { initializeAds(); }, []);
+
   const handleWatchAd = async () => {
     if (!selectedLocked) return;
     const rewarded = await showRewardedAd();
