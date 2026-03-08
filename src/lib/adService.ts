@@ -54,17 +54,17 @@ export async function showRewardedAd(): Promise<boolean> {
       await AdMob.prepareRewardVideoAd({ adId });
 
       // Wait for reward or dismissal
-      return new Promise<boolean>((resolve) => {
+      return new Promise<boolean>(async (resolve) => {
         let rewarded = false;
 
-        const rewardListener = AdMob.addListener(
+        const rewardListener = await AdMob.addListener(
           RewardAdPluginEvents.Rewarded,
           () => {
             rewarded = true;
           }
         );
 
-        const dismissListener = AdMob.addListener(
+        const dismissListener = await AdMob.addListener(
           RewardAdPluginEvents.Dismissed,
           () => {
             rewardListener.remove();
@@ -73,7 +73,7 @@ export async function showRewardedAd(): Promise<boolean> {
           }
         );
 
-        const failListener = AdMob.addListener(
+        const failListener = await AdMob.addListener(
           RewardAdPluginEvents.FailedToLoad,
           () => {
             rewardListener.remove();
