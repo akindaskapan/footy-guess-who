@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { CAMPAIGN_LEVELS, getLevelProgress, saveLevelProgress } from "@/pages/CampaignScreen";
 import { fireWinConfetti, hapticSuccess, hapticError } from "@/lib/feedback";
+import { showInterstitialAd, initializeAds } from "@/lib/adService";
 
 const MAX_GUESSES = 5;
 
@@ -51,6 +52,11 @@ export default function GameScreen() {
     isDaily ? gameState.hintsUsed : { letter: false, country: false, position: false, club: false }
   );
   const [challengeData, setChallengeData] = useState<any>(null);
+
+  // Initialize ads for campaign mode
+  useEffect(() => {
+    if (isCampaign) initializeAds();
+  }, [isCampaign]);
 
   // Load challenge data if applicable
   useEffect(() => {
@@ -210,7 +216,7 @@ export default function GameScreen() {
       setGameState(newState);
       saveResultToCloud(score, newGuesses.length, true);
 
-      // Save campaign progress
+      // Save campaign progress & show interstitial every 4 levels
       if (isCampaign && campaignLevel) {
         const lvlNum = parseInt(campaignLevel);
         const progress = getLevelProgress();
@@ -219,6 +225,11 @@ export default function GameScreen() {
         }
         progress.currentLevel = Math.max(progress.currentLevel, lvlNum + 1);
         saveLevelProgress(progress);
+
+        // Show interstitial ad every 4 completed levels
+        if (lvlNum % 4 === 0) {
+          showInterstitialAd();
+        }
       }
 
       fireWinConfetti();
