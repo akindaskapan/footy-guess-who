@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Coins, Gem, Shield, Gift, Sparkles, Crown, Zap, Eye } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { loadGameState, saveGameState, getSkipUsesLeft, resetSkipUses, MAX_FREE_SKIPS, SKIP_PURCHASE_PRICE } from "@/lib/gameState";
+import { loadGameState, saveGameState, getSkipUsesLeft, resetSkipUses, addSkipCredit, MAX_FREE_SKIPS, SKIP_PURCHASE_PRICE } from "@/lib/gameState";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { hapticSuccess } from "@/lib/feedback";
@@ -327,10 +327,10 @@ export default function Store() {
                     setAdsWatched(newCount);
                     if (newCount >= ADS_REQUIRED) {
                       hapticSuccess();
-                      resetSkipUses();
-                      setSkipCount(MAX_FREE_SKIPS);
+                      addSkipCredit(1);
+                      setSkipCount(getSkipUsesLeft());
                       setAdsWatched(0);
-                      toast.success(`${MAX_FREE_SKIPS} cevap gösterme hakkı kazanıldı! 🎬`);
+                      toast.success("1 cevap gösterme hakkı kazanıldı! 🎬");
                     } else {
                       toast.success(`Reklam ${newCount}/${ADS_REQUIRED} izlendi ✓`);
                     }
@@ -345,7 +345,7 @@ export default function Store() {
                     </p>
                   </div>
                   <p className="text-xs text-muted-foreground font-body mt-1">
-                    {ADS_REQUIRED} reklam izleyerek {MAX_FREE_SKIPS} hak kazan
+                    {ADS_REQUIRED} reklam izleyerek 1 hak kazan
                   </p>
                   {adsWatched > 0 && (
                     <div className="flex gap-1 mt-2 justify-center">

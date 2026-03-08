@@ -121,6 +121,11 @@ export function resetSkipUses(): void {
   localStorage.setItem(SKIP_STORAGE_KEY, "0");
 }
 
+export function addSkipCredit(count = 1): void {
+  const used = parseInt(localStorage.getItem(SKIP_STORAGE_KEY) || "0");
+  localStorage.setItem(SKIP_STORAGE_KEY, String(Math.max(0, used - count)));
+}
+
 // Scoring
 export function calculateScore(guessNumber: number, hintsUsed: number): number {
   let score = 100;

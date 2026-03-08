@@ -14,6 +14,7 @@ import {
   getSkipUsesLeft,
   consumeSkipUse,
   resetSkipUses,
+  addSkipCredit,
   SKIP_PURCHASE_PRICE,
 } from "@/lib/gameState";
 import { Silhouette } from "@/components/game/Silhouette";
@@ -414,10 +415,10 @@ export default function GameScreen() {
     const newCount = skipAdsWatched + 1;
     setSkipAdsWatched(newCount);
     if (newCount >= SKIP_ADS_REQUIRED) {
-      resetSkipUses();
+      addSkipCredit(1);
       setShowSkipPurchase(false);
       setSkipAdsWatched(0);
-      toast.success("3 reklam izledin! 5 cevap gösterme hakkı kazandın! 🎉");
+      toast.success("3 reklam izledin! 1 cevap gösterme hakkı kazandın! 🎉");
       handleExtraGuessSkip();
     } else {
       toast.success(`Reklam ${newCount}/${SKIP_ADS_REQUIRED} tamamlandı! 🎬`);
@@ -765,7 +766,7 @@ export default function GameScreen() {
                   <p className="font-display font-bold text-sm text-foreground">
                     {skipAdLoading ? "Reklam yükleniyor..." : `Reklam İzle (${skipAdsWatched}/${SKIP_ADS_REQUIRED})`}
                   </p>
-                  <p className="text-xs text-muted-foreground">3 reklam izleyerek 5 hak kazan</p>
+                  <p className="text-xs text-muted-foreground">3 reklam izleyerek 1 hak kazan</p>
                 </div>
                 <div className="flex gap-1">
                   {Array.from({ length: SKIP_ADS_REQUIRED }).map((_, i) => (
