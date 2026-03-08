@@ -236,7 +236,8 @@ export default function GameScreen() {
 
       fireWinConfetti();
       hapticSuccess();
-      toast.success(`+${score} points! 🎉`);
+      setEarnedScore(score);
+      toast.success(`+${score} puan! 🎉`);
     } else if (newGuesses.length >= MAX_GUESSES) {
       setGameOver(true);
       const newState: GameState = {
