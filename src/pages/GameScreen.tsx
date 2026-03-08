@@ -713,8 +713,44 @@ export default function GameScreen() {
               <p className="font-display font-bold text-sm text-foreground">Altın ile Al</p>
               <p className="text-xs text-muted-foreground">{EXTRA_GUESS_GOLD_COST} altın harca</p>
             </div>
-            <span className="text-xs font-bold text-accent">{EXTRA_GUESS_GOLD_COST} 💎</span>
+           <span className="text-xs font-bold text-accent">{EXTRA_GUESS_GOLD_COST} 💎</span>
           </button>
+
+          <button
+            onClick={handleExtraGuessSkip}
+            className="w-full text-center py-2 text-xs text-muted-foreground font-body hover:text-foreground transition-colors"
+          >
+            Vazgeç — Cevabı Göster {getSkipUsesLeft() > 0 ? `(${getSkipUsesLeft()} hak kaldı)` : "🔒"}
+          </button>
+
+          {/* Skip purchase modal */}
+          {showSkipPurchase && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mt-2 rounded-xl border-2 border-destructive/30 bg-destructive/5 p-4 space-y-3"
+            >
+              <p className="text-sm font-display font-bold text-foreground text-center">
+                Cevap gösterme hakkın bitti!
+              </p>
+              <p className="text-xs text-muted-foreground text-center font-body">
+                5 yeni hak satın almak için:
+              </p>
+              <button
+                onClick={handlePurchaseSkips}
+                className="w-full p-3 rounded-xl bg-primary/10 border border-primary/30 hover:bg-primary/20 transition-colors text-center"
+              >
+                <p className="font-display font-bold text-sm text-foreground">5 Hak Satın Al</p>
+                <p className="text-xs font-bold text-primary">{SKIP_PURCHASE_PRICE}</p>
+              </button>
+              <button
+                onClick={() => setShowSkipPurchase(false)}
+                className="w-full text-center py-1 text-xs text-muted-foreground font-body hover:text-foreground"
+              >
+                İptal
+              </button>
+            </motion.div>
+          )}
 
         </motion.div>
       )}
