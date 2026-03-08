@@ -482,6 +482,21 @@ export default function GameScreen() {
               hintsUsed={Object.values(hintsUsed).filter(Boolean).length}
             />
 
+            {/* Double reward button */}
+            {won && earnedScore > 0 && !rewardDoubled && (
+              <button
+                onClick={handleDoubleReward}
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-accent/15 border border-accent/30 px-4 py-3 font-display font-bold text-sm text-accent transition-colors hover:bg-accent/25 active:scale-[0.98]"
+              >
+                🎬 Reklam İzle → Ödülü 2x Yap (+{earnedScore} 💎)
+              </button>
+            )}
+            {rewardDoubled && (
+              <div className="w-full rounded-xl bg-primary/15 border border-primary/30 px-4 py-3 text-center">
+                <p className="font-display font-bold text-sm text-primary">✓ Ödül 2x yapıldı! +{earnedScore * 2} 💎</p>
+              </div>
+            )}
+
             <div className="flex gap-2 justify-center flex-wrap">
               <button
                 onClick={handleChallengeFriend}
