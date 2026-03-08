@@ -170,6 +170,67 @@ export default function Store() {
           </motion.button>
         </div>
 
+        {/* Gold Packs */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Gem className="w-4 h-4 text-accent" />
+            <p className="text-xs font-body text-muted-foreground uppercase tracking-wider">Altın Paketleri</p>
+          </div>
+
+          {/* Watch Ad for free gold */}
+          <motion.button
+            onClick={handleWatchAdForGold}
+            disabled={adCooldown}
+            className={`w-full rounded-xl border p-3 flex items-center gap-3 transition-transform active:scale-[0.98] ${
+              adCooldown ? "bg-card border-border opacity-50" : "bg-primary/10 border-primary/30"
+            }`}
+            whileTap={{ scale: 0.98 }}
+          >
+            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+              <Eye className="w-5 h-5 text-primary" />
+            </div>
+            <div className="text-left flex-1">
+              <p className="font-display font-bold text-sm text-foreground">
+                {adCooldown ? "Bekleniyor..." : "Reklam İzle"}
+              </p>
+              <p className="text-[10px] text-muted-foreground font-body">
+                {adCooldown ? "30 saniye sonra tekrar dene" : "Ücretsiz altın kazan"}
+              </p>
+            </div>
+            <span className="font-display font-bold text-sm text-primary">+{AD_REWARD_GOLD} 💎</span>
+          </motion.button>
+
+          <div className="grid grid-cols-2 gap-2">
+            {GOLD_PACKS.map((pack, i) => (
+              <motion.button
+                key={pack.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.06 }}
+                onClick={() => handleBuyPack(pack)}
+                className={`relative rounded-xl border p-4 text-center space-y-1 transition-transform active:scale-[0.97] ${
+                  pack.popular
+                    ? "bg-accent/10 border-accent/40 glow-gold"
+                    : "bg-card border-border"
+                }`}
+              >
+                {pack.popular && (
+                  <div className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-accent text-accent-foreground text-[9px] font-display font-bold">
+                    POPÜLER
+                  </div>
+                )}
+                <span className="text-2xl">{pack.emoji}</span>
+                <p className="font-display font-bold text-lg text-foreground">{pack.amount}</p>
+                {pack.bonus > 0 && (
+                  <p className="text-[10px] font-display font-bold text-primary">+{pack.bonus} BONUS</p>
+                )}
+                <p className="text-xs text-muted-foreground font-body">{pack.label}</p>
+                <p className="font-display font-bold text-sm text-accent">{pack.price}</p>
+              </motion.button>
+            ))}
+          </div>
+        </div>
+
         {/* Hint Costs Reference */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
