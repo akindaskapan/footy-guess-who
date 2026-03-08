@@ -317,6 +317,28 @@ export default function GameScreen() {
     }
   };
 
+  const handleDoubleReward = async () => {
+    if (rewardDoubled || earnedScore <= 0) return;
+    const rewarded = await showRewardedAd();
+    if (!rewarded) {
+      toast.error("Reklam tamamlanamadı, tekrar deneyin.");
+      return;
+    }
+    hapticSuccess();
+    setRewardDoubled(true);
+    const bonus = earnedScore;
+    const newState = {
+      ...gameState,
+      coins: gameState.coins + bonus,
+    };
+    saveGameState(newState);
+    setGameState(newState);
+    if (profile) {
+      updateProfile({ coins: (profile.coins ?? 0) + bonus });
+    }
+    toast.success(`+${bonus} bonus puan! Ödül 2x yapıldı! 🎬`);
+  };
+
   const handlePlayAgain = () => {
     if (isDaily) {
       navigate("/");
