@@ -75,9 +75,30 @@ export default function GameScreen() {
     return isDaily ? resetDailyIfNeeded(s) : s;
   });
 
-  const [guesses, setGuesses] = useState<string[]>(isDaily ? gameState.dailyGuesses : []);
-  const [won, setWon] = useState(isDaily ? gameState.dailyWon : false);
-  const [gameOver, setGameOver] = useState(isDaily ? gameState.dailyCompleted : false);
+  const [guesses, setGuesses] = useState<string[]>(() => {
+    if (isDaily) return gameState.dailyGuesses;
+    if (isCampaign && campaignLevel) {
+      const saved = loadCampaignResult(parseInt(campaignLevel));
+      if (saved) return saved.guesses;
+    }
+    return [];
+  });
+  const [won, setWon] = useState(() => {
+    if (isDaily) return gameState.dailyWon;
+    if (isCampaign && campaignLevel) {
+      const saved = loadCampaignResult(parseInt(campaignLevel));
+      if (saved) return saved.won;
+    }
+    return false;
+  });
+  const [gameOver, setGameOver] = useState(() => {
+    if (isDaily) return gameState.dailyCompleted;
+    if (isCampaign && campaignLevel) {
+      const saved = loadCampaignResult(parseInt(campaignLevel));
+      if (saved) return true; // completed level = game over
+    }
+    return false;
+  });
   const [hintsUsed, setHintsUsed] = useState<HintsState>(() => {
     if (isDaily) return gameState.hintsUsed;
     // Check for previously saved hints for this player
