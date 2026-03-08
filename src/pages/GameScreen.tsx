@@ -283,7 +283,10 @@ export default function GameScreen() {
   const handleHint = (type: "letter" | "country" | "position" | "club") => {
     const cost = HINT_COSTS[type];
     if (gameState.coins < cost || hintsUsed[type]) return;
-    setHintsUsed((prev) => ({ ...prev, [type]: true }));
+    const newHints = { ...hintsUsed, [type]: true };
+    setHintsUsed(newHints);
+    // Persist hints for this player so they survive page reload
+    if (!isDaily) saveHints(player.id, newHints);
     const newState = { ...gameState, coins: gameState.coins - cost };
     saveGameState(newState);
     setGameState(newState);
