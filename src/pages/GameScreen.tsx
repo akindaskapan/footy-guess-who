@@ -375,8 +375,13 @@ export default function GameScreen() {
   };
 
   const handleExtraGuessSkip = () => {
+    const skipsLeft = getSkipUsesLeft();
+    if (skipsLeft <= 0) {
+      setShowSkipPurchase(true);
+      return;
+    }
+    consumeSkipUse();
     setShowExtraGuessOffer(false);
-    // Trigger game over
     setGameOver(true);
     const newState: GameState = {
       ...gameState,
@@ -391,6 +396,16 @@ export default function GameScreen() {
       saveCampaignResult(parseInt(campaignLevel), { guesses, won: false, playerName: player.name });
     }
     toast.error(`Cevap: ${player.name}`);
+  };
+
+  const handlePurchaseSkips = () => {
+    // In production, trigger real IAP here
+    hapticSuccess();
+    localStorage.setItem(SKIP_STORAGE_KEY, "0"); // Reset uses
+    setShowSkipPurchase(false);
+    toast.success("5 cevap gösterme hakkı satın alındı! ✅");
+    // Now auto-skip
+    handleExtraGuessSkip();
   };
 
   const handleHint = async (type: "letter" | "country" | "position" | "club") => {
