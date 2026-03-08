@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { searchPlayers, Player } from "@/data/players";
 import { Search } from "lucide-react";
+import { hapticLight } from "@/lib/feedback";
 
 interface GuessInputProps {
   onGuess: (name: string) => void;
@@ -20,6 +21,7 @@ export function GuessInput({ onGuess, disabled }: GuessInputProps) {
   }, [query]);
 
   const handleSelect = (name: string) => {
+    hapticLight();
     setQuery("");
     setSuggestions([]);
     setShowSuggestions(false);
