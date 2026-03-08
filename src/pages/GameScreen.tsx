@@ -61,9 +61,11 @@ export default function GameScreen() {
   const [guesses, setGuesses] = useState<string[]>(isDaily ? gameState.dailyGuesses : []);
   const [won, setWon] = useState(isDaily ? gameState.dailyWon : false);
   const [gameOver, setGameOver] = useState(isDaily ? gameState.dailyCompleted : false);
-  const [hintsUsed, setHintsUsed] = useState(
-    isDaily ? gameState.hintsUsed : { letter: false, country: false, position: false, club: false }
-  );
+  const [hintsUsed, setHintsUsed] = useState<HintsState>(() => {
+    if (isDaily) return gameState.hintsUsed;
+    // Check for previously saved hints for this player
+    return { letter: false, country: false, position: false, club: false };
+  });
   const [challengeData, setChallengeData] = useState<any>(null);
   const [earnedScore, setEarnedScore] = useState(0);
   const [rewardDoubled, setRewardDoubled] = useState(false);
