@@ -52,6 +52,8 @@ export default function GameScreen() {
     isDaily ? gameState.hintsUsed : { letter: false, country: false, position: false, club: false }
   );
   const [challengeData, setChallengeData] = useState<any>(null);
+  const [earnedScore, setEarnedScore] = useState(0);
+  const [rewardDoubled, setRewardDoubled] = useState(false);
 
   // Initialize ads for campaign mode
   useEffect(() => {
