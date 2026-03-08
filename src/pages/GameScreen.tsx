@@ -388,7 +388,9 @@ export default function GameScreen() {
     setGameState(newState);
     saveResultToCloud(0, guesses.length, false);
     if (isCampaign && campaignLevel) {
-      saveCampaignResult(parseInt(campaignLevel), { guesses, won: false, playerName: player.name });
+      const lvlNum = parseInt(campaignLevel);
+      // Save result but do NOT advance currentLevel — level stays locked
+      saveCampaignResult(lvlNum, { guesses, won: false, playerName: player.name });
     }
     toast.error(`Cevap: ${player.name}`);
   };
@@ -418,8 +420,7 @@ export default function GameScreen() {
       addSkipCredit(1);
       setShowSkipPurchase(false);
       setSkipAdsWatched(0);
-      toast.success("3 reklam izledin! 1 cevap gösterme hakkı kazandın! 🎉");
-      handleExtraGuessSkip();
+      toast.success("🎉 1 cevap gösterme hakkı kazandın!", { duration: 3000 });
     } else {
       toast.success(`Reklam ${newCount}/${SKIP_ADS_REQUIRED} tamamlandı! 🎬`);
     }
