@@ -1,9 +1,12 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Coins, Gem, Shield, Gift, Sparkles, Crown, Zap } from "lucide-react";
+import { ArrowLeft, Coins, Gem, Shield, Gift, Sparkles, Crown, Zap, Eye } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { loadGameState, saveGameState } from "@/lib/gameState";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { hapticSuccess } from "@/lib/feedback";
+import { showRewardedAd, initializeAds } from "@/lib/adService";
+import { useEffect, useState } from "react";
 
 const DAILY_LOGIN_REWARDS = [40, 50, 60, 80, 100, 120, 200];
 
@@ -20,11 +23,54 @@ const PREMIUM_ITEMS = [
   { id: "rare_pack", label: "Rare Player Pack", goldCost: 80, icon: Gift, desc: "200 coins + 1 hint + 1 shield", color: "text-accent" },
 ];
 
+const GOLD_PACKS = [
+  { id: "pack_100", amount: 100, price: "₺29.99", label: "Starter", emoji: "💰", popular: false, bonus: 0 },
+  { id: "pack_550", amount: 550, price: "₺99.99", label: "Popular", emoji: "💎", popular: true, bonus: 50 },
+  { id: "pack_1200", amount: 1200, price: "₺179.99", label: "Best Value", emoji: "👑", popular: false, bonus: 200 },
+  { id: "pack_3000", amount: 3000, price: "₺349.99", label: "VIP", emoji: "🏆", popular: false, bonus: 500 },
+];
+
+const AD_REWARD_GOLD = 15;
+
 export default function Store() {
   const navigate = useNavigate();
   const { user, profile, updateProfile } = useAuth();
   const state = loadGameState();
   const coins = profile?.coins ?? state.coins;
+  const [adCooldown, setAdCooldown] = useState(false);
+
+  useEffect(() => { initializeAds(); }, []);
+
+  const addGold = async (amount: number) => {
+    if (user && profile) {
+      await updateProfile({ coins: (profile.coins || 0) + amount });
+    } else {
+      const newState = { ...state, coins: state.coins + amount };
+      saveGameState(newState);
+    }
+  };
+
+  const handleBuyPack = (pack: typeof GOLD_PACKS[0]) => {
+    // In production, this would trigger a real IAP flow
+    hapticSuccess();
+    const total = pack.amount + pack.bonus;
+    addGold(total);
+    toast.success(`+${total} altın eklendi! ${pack.emoji}`);
+  };
+
+  const handleWatchAdForGold = async () => {
+    if (adCooldown) return;
+    const rewarded = await showRewardedAd();
+    if (!rewarded) {
+      toast.error("Reklam tamamlanamadı, tekrar deneyin.");
+      return;
+    }
+    hapticSuccess();
+    addGold(AD_REWARD_GOLD);
+    toast.success(`+${AD_REWARD_GOLD} altın kazanıldı! 🎬`);
+    setAdCooldown(true);
+    setTimeout(() => setAdCooldown(false), 30000); // 30s cooldown
+  };
 
   const today = new Date().toISOString().split("T")[0];
   const lastClaim = localStorage.getItem("gtf_last_daily_claim");
@@ -122,6 +168,67 @@ export default function Store() {
               ))}
             </div>
           </motion.button>
+        </div>
+
+        {/* Gold Packs */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Gem className="w-4 h-4 text-accent" />
+            <p className="text-xs font-body text-muted-foreground uppercase tracking-wider">Altın Paketleri</p>
+          </div>
+
+          {/* Watch Ad for free gold */}
+          <motion.button
+            onClick={handleWatchAdForGold}
+            disabled={adCooldown}
+            className={`w-full rounded-xl border p-3 flex items-center gap-3 transition-transform active:scale-[0.98] ${
+              adCooldown ? "bg-card border-border opacity-50" : "bg-primary/10 border-primary/30"
+            }`}
+            whileTap={{ scale: 0.98 }}
+          >
+            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+              <Eye className="w-5 h-5 text-primary" />
+            </div>
+            <div className="text-left flex-1">
+              <p className="font-display font-bold text-sm text-foreground">
+                {adCooldown ? "Bekleniyor..." : "Reklam İzle"}
+              </p>
+              <p className="text-[10px] text-muted-foreground font-body">
+                {adCooldown ? "30 saniye sonra tekrar dene" : "Ücretsiz altın kazan"}
+              </p>
+            </div>
+            <span className="font-display font-bold text-sm text-primary">+{AD_REWARD_GOLD} 💎</span>
+          </motion.button>
+
+          <div className="grid grid-cols-2 gap-2">
+            {GOLD_PACKS.map((pack, i) => (
+              <motion.button
+                key={pack.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.06 }}
+                onClick={() => handleBuyPack(pack)}
+                className={`relative rounded-xl border p-4 text-center space-y-1 transition-transform active:scale-[0.97] ${
+                  pack.popular
+                    ? "bg-accent/10 border-accent/40 glow-gold"
+                    : "bg-card border-border"
+                }`}
+              >
+                {pack.popular && (
+                  <div className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-accent text-accent-foreground text-[9px] font-display font-bold">
+                    POPÜLER
+                  </div>
+                )}
+                <span className="text-2xl">{pack.emoji}</span>
+                <p className="font-display font-bold text-lg text-foreground">{pack.amount}</p>
+                {pack.bonus > 0 && (
+                  <p className="text-[10px] font-display font-bold text-primary">+{pack.bonus} BONUS</p>
+                )}
+                <p className="text-xs text-muted-foreground font-body">{pack.label}</p>
+                <p className="font-display font-bold text-sm text-accent">{pack.price}</p>
+              </motion.button>
+            ))}
+          </div>
         </div>
 
         {/* Hint Costs Reference */}
