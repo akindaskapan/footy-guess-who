@@ -111,7 +111,7 @@ function showSimulatedRewardedAd(): Promise<boolean> {
       font-family: system-ui, sans-serif;
     `;
 
-    let seconds = 5;
+    let seconds = 30;
 
     overlay.innerHTML = `
       <div style="text-align:center; color:white;">
