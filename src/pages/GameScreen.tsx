@@ -315,6 +315,7 @@ export default function GameScreen() {
       if (isCampaign && campaignLevel) {
         saveCampaignResult(parseInt(campaignLevel), { guesses: newGuesses, won: false, playerName: player.name });
       }
+      toast.error(`The answer was ${player.name}`);
     } else {
       hapticError();
       toast.error("Wrong! Try again");
