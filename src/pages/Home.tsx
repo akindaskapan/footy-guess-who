@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Flame, Trophy, Coins, Zap, Clock, Skull, Medal, Users, LogIn, LogOut, User } from "lucide-react";
+import { Flame, Trophy, Coins, Zap, Clock, Skull, Medal, Users, LogIn, LogOut, User, ShoppingBag } from "lucide-react";
 import { loadGameState } from "@/lib/gameState";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
@@ -47,6 +47,13 @@ export default function Home() {
       desc: "Track your progress",
       icon: Trophy,
       path: "/stats",
+      iconColor: "text-accent",
+    },
+    {
+      label: "Store",
+      desc: "Rewards, hints & more",
+      icon: ShoppingBag,
+      path: "/store",
       iconColor: "text-accent",
     },
   ];
