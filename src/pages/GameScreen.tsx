@@ -24,7 +24,7 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { CAMPAIGN_LEVELS, getLevelProgress, saveLevelProgress } from "@/pages/CampaignScreen";
 import { fireWinConfetti, hapticSuccess, hapticError } from "@/lib/feedback";
-import { showInterstitialAd, initializeAds } from "@/lib/adService";
+import { showInterstitialAd, showRewardedAd, initializeAds } from "@/lib/adService";
 
 const MAX_GUESSES = 5;
 
@@ -52,6 +52,8 @@ export default function GameScreen() {
     isDaily ? gameState.hintsUsed : { letter: false, country: false, position: false, club: false }
   );
   const [challengeData, setChallengeData] = useState<any>(null);
+  const [earnedScore, setEarnedScore] = useState(0);
+  const [rewardDoubled, setRewardDoubled] = useState(false);
 
   // Initialize ads for campaign mode
   useEffect(() => {
@@ -234,7 +236,8 @@ export default function GameScreen() {
 
       fireWinConfetti();
       hapticSuccess();
-      toast.success(`+${score} points! 🎉`);
+      setEarnedScore(score);
+      toast.success(`+${score} puan! 🎉`);
     } else if (newGuesses.length >= MAX_GUESSES) {
       setGameOver(true);
       const newState: GameState = {
@@ -312,6 +315,28 @@ export default function GameScreen() {
       console.error(err);
       toast.error("Failed to create challenge");
     }
+  };
+
+  const handleDoubleReward = async () => {
+    if (rewardDoubled || earnedScore <= 0) return;
+    const rewarded = await showRewardedAd();
+    if (!rewarded) {
+      toast.error("Reklam tamamlanamadı, tekrar deneyin.");
+      return;
+    }
+    hapticSuccess();
+    setRewardDoubled(true);
+    const bonus = earnedScore;
+    const newState = {
+      ...gameState,
+      coins: gameState.coins + bonus,
+    };
+    saveGameState(newState);
+    setGameState(newState);
+    if (profile) {
+      updateProfile({ coins: (profile.coins ?? 0) + bonus });
+    }
+    toast.success(`+${bonus} bonus puan! Ödül 2x yapıldı! 🎬`);
   };
 
   const handlePlayAgain = () => {
@@ -456,6 +481,21 @@ export default function GameScreen() {
               mode={isChallenge ? "challenge" : (mode || "unlimited")}
               hintsUsed={Object.values(hintsUsed).filter(Boolean).length}
             />
+
+            {/* Double reward button */}
+            {won && earnedScore > 0 && !rewardDoubled && (
+              <button
+                onClick={handleDoubleReward}
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-accent/15 border border-accent/30 px-4 py-3 font-display font-bold text-sm text-accent transition-colors hover:bg-accent/25 active:scale-[0.98]"
+              >
+                🎬 Reklam İzle → Ödülü 2x Yap (+{earnedScore} 💎)
+              </button>
+            )}
+            {rewardDoubled && (
+              <div className="w-full rounded-xl bg-primary/15 border border-primary/30 px-4 py-3 text-center">
+                <p className="font-display font-bold text-sm text-primary">✓ Ödül 2x yapıldı! +{earnedScore * 2} 💎</p>
+              </div>
+            )}
 
             <div className="flex gap-2 justify-center flex-wrap">
               <button
