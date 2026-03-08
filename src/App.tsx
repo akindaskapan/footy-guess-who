@@ -24,10 +24,10 @@ function AnimatedRoutes() {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Home />} />
-        <Route path="/play/:mode" element={<GameScreen />} />
-        <Route path="/campaign" element={<CampaignScreen />} />
         <Route path="/play/timeattack" element={<TimeAttackScreen />} />
         <Route path="/play/mystery" element={<MysteryScreen />} />
+        <Route path="/play/:mode" element={<GameScreen />} />
+        <Route path="/campaign" element={<CampaignScreen />} />
         <Route path="/stats" element={<Stats />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/auth" element={<AuthPage />} />
