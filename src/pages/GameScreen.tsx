@@ -686,12 +686,6 @@ export default function GameScreen() {
             <span className="text-xs font-bold text-accent">{EXTRA_GUESS_GOLD_COST} 💎</span>
           </button>
 
-          <button
-            onClick={handleExtraGuessSkip}
-            className="w-full text-center py-2 text-xs text-muted-foreground font-body hover:text-foreground transition-colors"
-          >
-            Vazgeç — Cevabı Göster
-          </button>
         </motion.div>
       )}
 
