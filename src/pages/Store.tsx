@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Coins, Gem, Shield, Gift, Sparkles, Crown, Zap, Eye } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { loadGameState, saveGameState, getSkipUsesLeft, resetSkipUses, MAX_FREE_SKIPS, SKIP_PURCHASE_PRICE } from "@/lib/gameState";
+import { loadGameState, saveGameState, getSkipUsesLeft, resetSkipUses, addSkipCredit, MAX_FREE_SKIPS, SKIP_PURCHASE_PRICE } from "@/lib/gameState";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { hapticSuccess } from "@/lib/feedback";
