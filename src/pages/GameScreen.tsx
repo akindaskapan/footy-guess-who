@@ -41,6 +41,23 @@ function saveHints(playerId: number, hints: HintsState) {
   localStorage.setItem(`gtf_hints_${playerId}`, JSON.stringify(hints));
 }
 
+interface CampaignLevelResult {
+  guesses: string[];
+  won: boolean;
+  playerName: string;
+}
+
+function loadCampaignResult(level: number): CampaignLevelResult | null {
+  try {
+    const raw = localStorage.getItem(`gtf_campaign_result_${level}`);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function saveCampaignResult(level: number, result: CampaignLevelResult) {
+  localStorage.setItem(`gtf_campaign_result_${level}`, JSON.stringify(result));
+}
+
 export default function GameScreen() {
   const { mode } = useParams<{ mode: string }>();
   const [searchParams] = useSearchParams();
@@ -58,9 +75,30 @@ export default function GameScreen() {
     return isDaily ? resetDailyIfNeeded(s) : s;
   });
 
-  const [guesses, setGuesses] = useState<string[]>(isDaily ? gameState.dailyGuesses : []);
-  const [won, setWon] = useState(isDaily ? gameState.dailyWon : false);
-  const [gameOver, setGameOver] = useState(isDaily ? gameState.dailyCompleted : false);
+  const [guesses, setGuesses] = useState<string[]>(() => {
+    if (isDaily) return gameState.dailyGuesses;
+    if (isCampaign && campaignLevel) {
+      const saved = loadCampaignResult(parseInt(campaignLevel));
+      if (saved) return saved.guesses;
+    }
+    return [];
+  });
+  const [won, setWon] = useState(() => {
+    if (isDaily) return gameState.dailyWon;
+    if (isCampaign && campaignLevel) {
+      const saved = loadCampaignResult(parseInt(campaignLevel));
+      if (saved) return saved.won;
+    }
+    return false;
+  });
+  const [gameOver, setGameOver] = useState(() => {
+    if (isDaily) return gameState.dailyCompleted;
+    if (isCampaign && campaignLevel) {
+      const saved = loadCampaignResult(parseInt(campaignLevel));
+      if (saved) return true; // completed level = game over
+    }
+    return false;
+  });
   const [hintsUsed, setHintsUsed] = useState<HintsState>(() => {
     if (isDaily) return gameState.hintsUsed;
     // Check for previously saved hints for this player
@@ -250,6 +288,7 @@ export default function GameScreen() {
         }
         progress.currentLevel = Math.max(progress.currentLevel, lvlNum + 1);
         saveLevelProgress(progress);
+        saveCampaignResult(lvlNum, { guesses: newGuesses, won: true, playerName: player.name });
 
         // Show interstitial ad every 4 completed levels
         if (lvlNum % 4 === 0) {
@@ -273,6 +312,9 @@ export default function GameScreen() {
       setGameState(newState);
       saveResultToCloud(0, newGuesses.length, false);
       hapticError();
+      if (isCampaign && campaignLevel) {
+        saveCampaignResult(parseInt(campaignLevel), { guesses: newGuesses, won: false, playerName: player.name });
+      }
       toast.error(`The answer was ${player.name}`);
     } else {
       hapticError();
