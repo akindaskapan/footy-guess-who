@@ -216,7 +216,7 @@ export default function GameScreen() {
       setGameState(newState);
       saveResultToCloud(score, newGuesses.length, true);
 
-      // Save campaign progress
+      // Save campaign progress & show interstitial every 4 levels
       if (isCampaign && campaignLevel) {
         const lvlNum = parseInt(campaignLevel);
         const progress = getLevelProgress();
@@ -225,6 +225,11 @@ export default function GameScreen() {
         }
         progress.currentLevel = Math.max(progress.currentLevel, lvlNum + 1);
         saveLevelProgress(progress);
+
+        // Show interstitial ad every 4 completed levels
+        if (lvlNum % 4 === 0) {
+          showInterstitialAd();
+        }
       }
 
       fireWinConfetti();
