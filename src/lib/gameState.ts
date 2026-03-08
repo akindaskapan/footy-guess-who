@@ -126,7 +126,7 @@ export function addSkipCredit(count = 1): void {
   localStorage.setItem(SKIP_STORAGE_KEY, String(Math.max(0, used - count)));
 }
 
-// Scoring
+// XP Scoring (for leaderboards and progression)
 export function calculateScore(guessNumber: number, hintsUsed: number): number {
   let score = 100;
   if (guessNumber === 1) score += 200;
@@ -134,4 +134,13 @@ export function calculateScore(guessNumber: number, hintsUsed: number): number {
   else if (guessNumber === 3) score += 50;
   if (hintsUsed === 0) score += 150;
   return score;
+}
+
+// Coin rewards (much smaller amounts)
+export function calculateEarnedCoins(guessNumber: number, hintsUsed: number): number {
+  let coins = 10; // Base reward
+  if (guessNumber === 1) coins += 15; // First try bonus
+  else if (guessNumber === 2) coins += 10; // Second try bonus
+  if (hintsUsed === 0) coins += 5; // No hints bonus
+  return coins;
 }

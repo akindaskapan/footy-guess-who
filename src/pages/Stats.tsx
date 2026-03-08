@@ -59,7 +59,7 @@ export default function Stats() {
               {(profile.display_name || "P")[0].toUpperCase()}
             </div>
             <p className="font-display font-bold text-lg text-foreground">{profile.display_name}</p>
-            <p className="text-xs text-muted-foreground font-body">Score: {profile.total_score}</p>
+            <p className="text-xs text-muted-foreground font-body">XP: {profile.total_score}</p>
           </div>
         )}
 
