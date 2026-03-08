@@ -89,7 +89,7 @@ export default function Home() {
       {/* Header */}
       <div className="px-6 pt-8 pb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Coins className="w-5 h-5 text-accent" />
+          <span className="text-sm">💎</span>
           <span className="font-display font-bold text-accent">{coins}</span>
         </div>
         <div className="flex items-center gap-3">
