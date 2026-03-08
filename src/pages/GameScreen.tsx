@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Share2, Swords, Users } from "lucide-react";
+import { ArrowLeft, Swords, Users } from "lucide-react";
 import { Player, getDailyPlayer, getRandomPlayer, players } from "@/data/players";
 import {
   GameState,
@@ -17,6 +17,7 @@ import { ClubCard } from "@/components/game/ClubCard";
 import { GuessInput } from "@/components/game/GuessInput";
 import { GuessHistory } from "@/components/game/GuessHistory";
 import { HintsPanel } from "@/components/game/HintsPanel";
+import { ShareCard } from "@/components/game/ShareCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -400,14 +401,16 @@ export default function GameScreen() {
               </div>
             )}
 
+            <ShareCard
+              puzzleNumber={puzzleNumber}
+              guesses={guesses}
+              won={won}
+              player={player}
+              mode={isChallenge ? "challenge" : (mode || "unlimited")}
+              hintsUsed={Object.values(hintsUsed).filter(Boolean).length}
+            />
+
             <div className="flex gap-2 justify-center flex-wrap">
-              <button
-                onClick={handleShare}
-                className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 font-display font-semibold text-sm text-primary-foreground"
-              >
-                <Share2 className="w-4 h-4" />
-                Share
-              </button>
               <button
                 onClick={handleChallengeFriend}
                 className="flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 font-display font-semibold text-sm text-accent-foreground"

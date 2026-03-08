@@ -10,6 +10,7 @@ import GameScreen from "./pages/GameScreen";
 import Stats from "./pages/Stats";
 import Leaderboard from "./pages/Leaderboard";
 import AuthPage from "./pages/AuthPage";
+import Store from "./pages/Store";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ function AnimatedRoutes() {
         <Route path="/stats" element={<Stats />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/store" element={<Store />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
