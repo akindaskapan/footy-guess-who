@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Lock, CheckCircle, Star, Play, Coins, Unlock, Eye } from "lucide-react";
 import { players } from "@/data/players";
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { hapticMedium, hapticSuccess } from "@/lib/feedback";
+import { showRewardedAd, initializeAds } from "@/lib/adService";
 
 // Generate a fixed level order from the dataset, sorted by difficulty
 const CAMPAIGN_LEVELS = (() => {
@@ -62,10 +63,16 @@ export default function CampaignScreen() {
 
   const userGold = profile?.coins ?? 0;
 
-  const handleWatchAd = () => {
+  useEffect(() => { initializeAds(); }, []);
+
+  const handleWatchAd = async () => {
     if (!selectedLocked) return;
+    const rewarded = await showRewardedAd();
+    if (!rewarded) {
+      toast.error("Reklam tamamlanamadı, tekrar deneyin.");
+      return;
+    }
     hapticSuccess();
-    // Simulate rewarded ad
     toast.success("Reklam izlendi! Seviye açıldı 🎬");
     const newProgress = {
       ...progress,
