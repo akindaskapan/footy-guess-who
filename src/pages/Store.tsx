@@ -47,7 +47,7 @@ export default function Store() {
       saveGameState(newState);
     }
 
-    toast.success(`+${reward} coins! 🪙`);
+    toast.success(`+${reward} gold! 💎`);
   };
 
   return (
@@ -67,7 +67,7 @@ export default function Store() {
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1">
             <span className="font-display font-bold text-sm text-accent">{coins}</span>
-            <span>🪙</span>
+            <span>💎</span>
           </div>
         </div>
       </div>
@@ -93,7 +93,7 @@ export default function Store() {
             <div className="flex items-center justify-between">
               <div className="text-left">
                 <p className="font-display font-bold text-foreground">
-                  {canClaimDaily ? `Claim ${currentDayReward} coins!` : "Already claimed today"}
+                  {canClaimDaily ? `Claim ${currentDayReward} gold!` : "Already claimed today"}
                 </p>
                 <p className="text-xs text-muted-foreground font-body">
                   Day {loginDay + 1} of 7 · Resets weekly
@@ -144,7 +144,7 @@ export default function Store() {
                   <span className="font-display font-semibold text-xs text-foreground">{item.label}</span>
                 </div>
                 <p className="text-[10px] text-muted-foreground font-body">{item.desc}</p>
-                <p className="font-display font-bold text-xs text-accent">{item.cost} 🪙</p>
+                <p className="font-display font-bold text-xs text-accent">{item.cost} 💎</p>
               </motion.div>
             ))}
           </div>
