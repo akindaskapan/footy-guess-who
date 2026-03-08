@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { CAMPAIGN_LEVELS, getLevelProgress, saveLevelProgress } from "@/pages/CampaignScreen";
 import { fireWinConfetti, hapticSuccess, hapticError } from "@/lib/feedback";
+import { showInterstitialAd, initializeAds } from "@/lib/adService";
 
 const MAX_GUESSES = 5;
 
