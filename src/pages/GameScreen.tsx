@@ -10,6 +10,7 @@ import {
   generateShareText,
   HINT_COSTS,
   calculateScore,
+  calculateEarnedCoins,
   getTodayStr,
   getSkipUsesLeft,
   consumeSkipUse,
@@ -222,7 +223,7 @@ export default function GameScreen() {
         const updates: any = {
           total_score: (profile.total_score || 0) + score,
           total_played: (profile.total_played || 0) + 1,
-          coins: (profile.coins || 0) + score,
+          coins: (profile.coins || 0) + Math.floor(score / 5), // Much smaller coin reward
         };
         if (didWin) {
           updates.total_correct = (profile.total_correct || 0) + 1;
@@ -275,11 +276,12 @@ export default function GameScreen() {
       setWon(true);
       setGameOver(true);
       const hintCount = Object.values(hintsUsed).filter(Boolean).length;
-      const score = calculateScore(newGuesses.length, hintCount);
+      const xpGained = calculateScore(newGuesses.length, hintCount);
+      const coinsGained = calculateEarnedCoins(newGuesses.length, hintCount);
       const streakReward = isDaily ? getStreakReward(gameState.streak + 1) : 0;
       const newState: GameState = {
         ...gameState,
-        coins: gameState.coins + score + streakReward,
+        coins: gameState.coins + coinsGained + streakReward,
         totalCorrect: gameState.totalCorrect + 1,
         totalPlayed: gameState.totalPlayed + 1,
         streak: isDaily ? gameState.streak + 1 : gameState.streak,
@@ -288,7 +290,7 @@ export default function GameScreen() {
       };
       saveGameState(newState);
       setGameState(newState);
-      saveResultToCloud(score, newGuesses.length, true);
+      saveResultToCloud(xpGained, newGuesses.length, true);
 
       // Save campaign progress & show interstitial every 4 levels
       if (isCampaign && campaignLevel) {
@@ -309,8 +311,8 @@ export default function GameScreen() {
 
       fireWinConfetti();
       hapticSuccess();
-      setEarnedScore(score);
-      toast.success(`+${score} puan! 🎉`);
+      setEarnedScore(xpGained);
+      toast.success(`+${xpGained} XP, +${coinsGained + streakReward} coins! 🎉`);
     } else if (newGuesses.length >= effectiveMaxGuesses) {
       // If extra guess not used yet, offer it instead of ending
       if (!extraGuessUsed && newGuesses.length === MAX_GUESSES) {

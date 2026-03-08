@@ -112,17 +112,18 @@ export default function TimeAttackScreen() {
   useEffect(() => {
     if (!gameOver || !gameStarted) return;
     if (correctCount >= 5) fireWinConfetti();
-    const state = loadGameState();
-    const goldReward = Math.floor(score / 10);
-    const newState = { ...state, coins: state.coins + goldReward };
+    const localState = loadGameState();
+    const totalScore = score;
+    const coinsEarned = Math.floor(totalScore / 50); // Reduced coin rate
+    const newState = { ...localState, coins: localState.coins + coinsEarned };
     saveGameState(newState);
 
     if (user && profile) {
       updateProfile({
-        total_score: (profile.total_score || 0) + score,
+        total_score: (profile.total_score || 0) + totalScore,
         total_played: (profile.total_played || 0) + TOTAL_ROUNDS,
         total_correct: (profile.total_correct || 0) + correctCount,
-        coins: (profile.coins || 0) + goldReward,
+        coins: (profile.coins || 0) + coinsEarned,
       });
     }
   }, [gameOver]);
@@ -170,7 +171,7 @@ export default function TimeAttackScreen() {
 
   // Game Over screen
   if (gameOver) {
-    const goldReward = Math.floor(score / 10);
+    const coinsEarned = Math.floor(score / 50);
     return (
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
@@ -188,8 +189,8 @@ export default function TimeAttackScreen() {
             <p className="text-[10px] text-muted-foreground font-body">Correct</p>
           </div>
           <div className="rounded-xl bg-card border border-border p-3 text-center">
-            <p className="font-display font-bold text-lg text-accent">+{goldReward}</p>
-            <p className="text-[10px] text-muted-foreground font-body">Gold earned</p>
+            <p className="font-display font-bold text-lg text-accent">+{coinsEarned}</p>
+            <p className="text-[10px] text-muted-foreground font-body">Coins earned</p>
           </div>
         </div>
         <div className="flex gap-3 w-full max-w-xs">
