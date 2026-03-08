@@ -312,7 +312,9 @@ export default function GameScreen() {
       setGameState(newState);
       saveResultToCloud(0, newGuesses.length, false);
       hapticError();
-      toast.error(`The answer was ${player.name}`);
+      if (isCampaign && campaignLevel) {
+        saveCampaignResult(parseInt(campaignLevel), { guesses: newGuesses, won: false, playerName: player.name });
+      }
     } else {
       hapticError();
       toast.error("Wrong! Try again");
