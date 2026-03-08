@@ -22,6 +22,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { CAMPAIGN_LEVELS, getLevelProgress, saveLevelProgress } from "@/pages/CampaignScreen";
 
 const MAX_GUESSES = 5;
 
@@ -29,10 +30,12 @@ export default function GameScreen() {
   const { mode } = useParams<{ mode: string }>();
   const [searchParams] = useSearchParams();
   const challengeCode = searchParams.get("challenge");
+  const campaignLevel = searchParams.get("level");
   const navigate = useNavigate();
   const { user, profile, updateProfile, refreshProfile } = useAuth();
   const isDaily = mode === "daily";
   const isHardcore = mode === "hardcore";
+  const isCampaign = mode === "campaign";
   const isChallenge = !!challengeCode;
 
   const [gameState, setGameState] = useState<GameState>(() => {
