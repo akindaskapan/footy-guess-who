@@ -323,6 +323,54 @@ export default function CampaignScreen() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Completed Level Result Dialog */}
+      <Dialog open={!!selectedCompleted} onOpenChange={(open) => !open && setSelectedCompleted(null)}>
+        <DialogContent className="max-w-xs rounded-2xl bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="font-display text-foreground text-center">
+              {selectedCompleted?.result.won ? "🎉" : "😔"} Seviye {selectedCompleted?.level.level}
+            </DialogTitle>
+            <DialogDescription className="text-center text-muted-foreground text-sm">
+              Bu seviye daha önce tamamlandı.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex flex-col items-center gap-3 mt-2">
+            <div className={`w-16 h-16 rounded-full flex items-center justify-center ${selectedCompleted?.result.won ? "bg-primary/20" : "bg-destructive/20"}`}>
+              {selectedCompleted?.result.won
+                ? <Trophy className="w-8 h-8 text-primary" />
+                : <span className="text-2xl">✗</span>
+              }
+            </div>
+
+            <div className="text-center space-y-1">
+              <p className="font-display font-bold text-lg text-foreground">
+                {selectedCompleted?.result.playerName}
+              </p>
+              <p className={`text-xs font-body ${getDifficultyColor(selectedCompleted?.level.difficulty || "")}`}>
+                {getDifficultyLabel(selectedCompleted?.level.difficulty || "")}
+              </p>
+            </div>
+
+            {selectedCompleted?.result.won && (
+              <div className="rounded-xl bg-primary/10 border border-primary/20 px-4 py-2 text-center">
+                <p className="text-xs text-muted-foreground font-body">Tahmin Sayısı</p>
+                <p className="font-display font-bold text-xl text-primary">
+                  {selectedCompleted.result.guesses.length} / 5
+                </p>
+              </div>
+            )}
+
+            {!selectedCompleted?.result.won && (
+              <div className="rounded-xl bg-destructive/10 border border-destructive/20 px-4 py-2 text-center">
+                <p className="text-xs text-muted-foreground font-body">Sonuç</p>
+                <p className="font-display font-bold text-sm text-destructive">Bilenemedi</p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 }
