@@ -255,8 +255,10 @@ export default function GameScreen() {
     }
   };
 
+  const effectiveMaxGuesses = extraGuessUsed ? MAX_GUESSES + 1 : MAX_GUESSES;
+
   const handleGuess = (name: string) => {
-    if (gameOver || guesses.length >= MAX_GUESSES) return;
+    if (gameOver || guesses.length >= effectiveMaxGuesses) return;
 
     const newGuesses = [...guesses, name];
     setGuesses(newGuesses);
