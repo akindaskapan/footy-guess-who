@@ -115,6 +115,9 @@ export default function GameScreen() {
   const [extraGuessUsed, setExtraGuessUsed] = useState(false);
   const [showExtraGuessOffer, setShowExtraGuessOffer] = useState(false);
   const [showSkipPurchase, setShowSkipPurchase] = useState(false);
+  const [skipAdsWatched, setSkipAdsWatched] = useState(0);
+  const [skipAdLoading, setSkipAdLoading] = useState(false);
+  const SKIP_ADS_REQUIRED = 3;
 
   useEffect(() => { initializeAds(); }, []);
 
@@ -390,13 +393,35 @@ export default function GameScreen() {
   };
 
   const handlePurchaseSkips = () => {
-    // In production, trigger real IAP here
     hapticSuccess();
     resetSkipUses();
     setShowSkipPurchase(false);
+    setSkipAdsWatched(0);
     toast.success("5 cevap gösterme hakkı satın alındı! ✅");
-    // Now auto-skip
     handleExtraGuessSkip();
+  };
+
+  const handleSkipAdWatch = async () => {
+    if (skipAdLoading) return;
+    setSkipAdLoading(true);
+    const rewarded = await showRewardedAd();
+    setSkipAdLoading(false);
+    if (!rewarded) {
+      toast.error("Reklam tamamlanamadı, tekrar deneyin.");
+      return;
+    }
+    hapticSuccess();
+    const newCount = skipAdsWatched + 1;
+    setSkipAdsWatched(newCount);
+    if (newCount >= SKIP_ADS_REQUIRED) {
+      resetSkipUses();
+      setShowSkipPurchase(false);
+      setSkipAdsWatched(0);
+      toast.success("3 reklam izledin! 5 cevap gösterme hakkı kazandın! 🎉");
+      handleExtraGuessSkip();
+    } else {
+      toast.success(`Reklam ${newCount}/${SKIP_ADS_REQUIRED} tamamlandı! 🎬`);
+    }
   };
 
   const handleHint = async (type: "letter" | "country" | "position" | "club") => {
@@ -727,15 +752,46 @@ export default function GameScreen() {
               <p className="text-xs text-muted-foreground text-center font-body">
                 5 yeni hak satın almak için:
               </p>
+              {/* Watch 3 ads option */}
+              <button
+                onClick={handleSkipAdWatch}
+                disabled={skipAdLoading}
+                className="flex items-center gap-3 w-full p-3 rounded-xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors disabled:opacity-50"
+              >
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                  <span className="text-lg">🎬</span>
+                </div>
+                <div className="text-left flex-1">
+                  <p className="font-display font-bold text-sm text-foreground">
+                    {skipAdLoading ? "Reklam yükleniyor..." : `Reklam İzle (${skipAdsWatched}/${SKIP_ADS_REQUIRED})`}
+                  </p>
+                  <p className="text-xs text-muted-foreground">3 reklam izleyerek 5 hak kazan</p>
+                </div>
+                <div className="flex gap-1">
+                  {Array.from({ length: SKIP_ADS_REQUIRED }).map((_, i) => (
+                    <div
+                      key={i}
+                      className={`w-2.5 h-2.5 rounded-full ${i < skipAdsWatched ? "bg-primary" : "bg-muted"}`}
+                    />
+                  ))}
+                </div>
+              </button>
+
+              <div className="flex items-center gap-2">
+                <div className="flex-1 h-px bg-border" />
+                <span className="text-xs text-muted-foreground">veya</span>
+                <div className="flex-1 h-px bg-border" />
+              </div>
+
               <button
                 onClick={handlePurchaseSkips}
-                className="w-full p-3 rounded-xl bg-primary/10 border border-primary/30 hover:bg-primary/20 transition-colors text-center"
+                className="w-full p-3 rounded-xl bg-accent/10 border border-accent/20 hover:bg-accent/20 transition-colors text-center"
               >
                 <p className="font-display font-bold text-sm text-foreground">5 Hak Satın Al</p>
-                <p className="text-xs font-bold text-primary">{SKIP_PURCHASE_PRICE}</p>
+                <p className="text-xs font-bold text-accent">{SKIP_PURCHASE_PRICE}</p>
               </button>
               <button
-                onClick={() => setShowSkipPurchase(false)}
+                onClick={() => { setShowSkipPurchase(false); setSkipAdsWatched(0); }}
                 className="w-full text-center py-1 text-xs text-muted-foreground font-body hover:text-foreground"
               >
                 İptal
