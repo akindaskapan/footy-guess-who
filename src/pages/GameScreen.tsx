@@ -329,7 +329,7 @@ export default function GameScreen() {
     }
   };
 
-  const EXTRA_GUESS_GOLD_COST = 75;
+  const EXTRA_GUESS_GOLD_COST = player.difficulty === "easy" ? 50 : player.difficulty === "hard" ? 100 : 75;
 
   const handleExtraGuessAd = async () => {
     const rewarded = await showRewardedAd();
