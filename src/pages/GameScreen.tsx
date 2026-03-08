@@ -41,6 +41,23 @@ function saveHints(playerId: number, hints: HintsState) {
   localStorage.setItem(`gtf_hints_${playerId}`, JSON.stringify(hints));
 }
 
+interface CampaignLevelResult {
+  guesses: string[];
+  won: boolean;
+  playerName: string;
+}
+
+function loadCampaignResult(level: number): CampaignLevelResult | null {
+  try {
+    const raw = localStorage.getItem(`gtf_campaign_result_${level}`);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function saveCampaignResult(level: number, result: CampaignLevelResult) {
+  localStorage.setItem(`gtf_campaign_result_${level}`, JSON.stringify(result));
+}
+
 export default function GameScreen() {
   const { mode } = useParams<{ mode: string }>();
   const [searchParams] = useSearchParams();
