@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Flame, Trophy, Coins, Zap, Clock, Skull, Medal, Users, LogIn, LogOut, User, ShoppingBag } from "lucide-react";
+import { Flame, Trophy, Coins, Zap, Clock, Skull, Medal, Users, LogIn, LogOut, User, ShoppingBag, EyeOff, Timer, Map } from "lucide-react";
 import { loadGameState } from "@/lib/gameState";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
@@ -22,11 +22,32 @@ export default function Home() {
       iconColor: "text-primary-foreground",
     },
     {
+      label: "Campaign",
+      desc: "365 levels to conquer",
+      icon: Map,
+      path: "/campaign",
+      iconColor: "text-primary",
+    },
+    {
       label: "Unlimited Mode",
       desc: "Play as many as you want",
       icon: Zap,
       path: "/play/unlimited",
       iconColor: "text-accent",
+    },
+    {
+      label: "Time Attack",
+      desc: "10 players, 90 seconds",
+      icon: Timer,
+      path: "/play/timeattack",
+      iconColor: "text-accent",
+    },
+    {
+      label: "Mystery Mode",
+      desc: "No clubs, 2x rewards",
+      icon: EyeOff,
+      path: "/play/mystery",
+      iconColor: "text-destructive",
     },
     {
       label: "Hardcore Mode",
