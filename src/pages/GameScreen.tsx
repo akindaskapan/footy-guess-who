@@ -643,10 +643,60 @@ export default function GameScreen() {
         )}
       </div>
 
+      {/* Extra Guess Offer */}
+      {showExtraGuessOffer && !gameOver && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mx-4 mb-2 rounded-2xl bg-card border-2 border-accent/40 p-5 space-y-3"
+        >
+          <div className="text-center space-y-1">
+            <p className="text-2xl">⏳</p>
+            <p className="font-display font-bold text-base text-foreground">Tahmin hakkın bitti!</p>
+            <p className="text-xs text-muted-foreground font-body">+1 ekstra tahmin hakkı almak için birini seç:</p>
+          </div>
+
+          <button
+            onClick={handleExtraGuessAd}
+            className="flex items-center gap-3 w-full p-3 rounded-xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors"
+          >
+            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+              <span className="text-lg">🎬</span>
+            </div>
+            <div className="text-left flex-1">
+              <p className="font-display font-bold text-sm text-foreground">Reklam İzle</p>
+              <p className="text-xs text-muted-foreground">30 sn reklam izleyerek hak kazan</p>
+            </div>
+            <span className="text-xs font-bold text-primary">ÜCRETSİZ</span>
+          </button>
+
+          <button
+            onClick={handleExtraGuessGold}
+            className="flex items-center gap-3 w-full p-3 rounded-xl bg-accent/10 border border-accent/20 hover:bg-accent/20 transition-colors"
+          >
+            <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
+              <span className="text-lg">💎</span>
+            </div>
+            <div className="text-left flex-1">
+              <p className="font-display font-bold text-sm text-foreground">Altın ile Al</p>
+              <p className="text-xs text-muted-foreground">{EXTRA_GUESS_GOLD_COST} altın harca</p>
+            </div>
+            <span className="text-xs font-bold text-accent">{EXTRA_GUESS_GOLD_COST} 💎</span>
+          </button>
+
+          <button
+            onClick={handleExtraGuessSkip}
+            className="w-full text-center py-2 text-xs text-muted-foreground font-body hover:text-foreground transition-colors"
+          >
+            Vazgeç — Cevabı Göster
+          </button>
+        </motion.div>
+      )}
+
       {/* Input */}
-      {!gameOver && (
+      {!gameOver && !showExtraGuessOffer && (
         <div className="px-4 pb-6 pt-2 border-t border-border bg-background">
-          <GuessInput onGuess={handleGuess} disabled={gameOver} />
+          <GuessInput onGuess={handleGuess} disabled={gameOver || showExtraGuessOffer} />
         </div>
       )}
     </motion.div>
