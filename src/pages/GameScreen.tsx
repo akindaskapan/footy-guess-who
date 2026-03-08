@@ -28,6 +28,19 @@ import { showInterstitialAd, showRewardedAd, initializeAds } from "@/lib/adServi
 
 const MAX_GUESSES = 5;
 
+type HintsState = { letter: boolean; country: boolean; position: boolean; club: boolean };
+
+function loadSavedHints(playerId: number): HintsState | null {
+  try {
+    const raw = localStorage.getItem(`gtf_hints_${playerId}`);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function saveHints(playerId: number, hints: HintsState) {
+  localStorage.setItem(`gtf_hints_${playerId}`, JSON.stringify(hints));
+}
+
 export default function GameScreen() {
   const { mode } = useParams<{ mode: string }>();
   const [searchParams] = useSearchParams();
