@@ -53,6 +53,11 @@ export default function GameScreen() {
   );
   const [challengeData, setChallengeData] = useState<any>(null);
 
+  // Initialize ads for campaign mode
+  useEffect(() => {
+    if (isCampaign) initializeAds();
+  }, [isCampaign]);
+
   // Load challenge data if applicable
   useEffect(() => {
     if (challengeCode) {
