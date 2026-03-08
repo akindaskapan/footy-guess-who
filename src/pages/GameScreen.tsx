@@ -743,7 +743,7 @@ export default function GameScreen() {
             onClick={handleExtraGuessSkip}
             className="w-full text-center py-2 text-xs text-muted-foreground font-body hover:text-foreground transition-colors"
           >
-            Vazgeç — Cevabı Göster {getSkipUsesLeft() > 0 ? `(${getSkipUsesLeft()} hak kaldı)` : "🔒"}
+            Soruyu Atla — Cevabı Göster {getSkipUsesLeft() > 0 ? `(${getSkipUsesLeft()} hak kaldı)` : "🔒"}
           </button>
 
           {/* Skip purchase modal */}
