@@ -110,10 +110,7 @@ export default function GameScreen() {
   const [extraGuessUsed, setExtraGuessUsed] = useState(false);
   const [showExtraGuessOffer, setShowExtraGuessOffer] = useState(false);
 
-  // Initialize ads for campaign mode
-  useEffect(() => {
-    if (isCampaign) initializeAds();
-  }, [isCampaign]);
+  useEffect(() => { initializeAds(); }, []);
 
   // Load challenge data if applicable
   useEffect(() => {
