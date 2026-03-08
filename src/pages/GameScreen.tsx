@@ -523,7 +523,7 @@ export default function GameScreen() {
 
       {/* Guess dots */}
       <div className="px-4 py-3">
-        <GuessHistory guesses={guesses} correctName={player.name} maxGuesses={MAX_GUESSES} />
+        <GuessHistory guesses={guesses} correctName={player.name} maxGuesses={effectiveMaxGuesses} />
       </div>
 
       {/* Scrollable content */}
