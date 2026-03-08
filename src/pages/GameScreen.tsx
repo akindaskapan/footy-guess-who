@@ -378,13 +378,18 @@ export default function GameScreen() {
     toast.error(`Cevap: ${player.name}`);
   };
 
-  const handleHint = (type: "letter" | "country" | "position" | "club") => {
+  const handleHint = async (type: "letter" | "country" | "position" | "club") => {
     const cost = HINT_COSTS[type];
-    if (gameState.coins < cost || hintsUsed[type]) return;
+    const currentCoins = profile?.coins ?? gameState.coins;
+    if (currentCoins < cost || hintsUsed[type]) return;
     const newHints = { ...hintsUsed, [type]: true };
     setHintsUsed(newHints);
     // Persist hints for this player so they survive page reload
     if (!isDaily) saveHints(player.id, newHints);
+    // Deduct from cloud profile if logged in, otherwise local state
+    if (user && profile) {
+      await updateProfile({ coins: (profile.coins || 0) - cost });
+    }
     const newState = { ...gameState, coins: gameState.coins - cost };
     saveGameState(newState);
     setGameState(newState);
