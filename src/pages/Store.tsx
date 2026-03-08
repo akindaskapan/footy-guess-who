@@ -1,9 +1,12 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Coins, Gem, Shield, Gift, Sparkles, Crown, Zap } from "lucide-react";
+import { ArrowLeft, Coins, Gem, Shield, Gift, Sparkles, Crown, Zap, Eye } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { loadGameState, saveGameState } from "@/lib/gameState";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { hapticSuccess } from "@/lib/feedback";
+import { showRewardedAd, initializeAds } from "@/lib/adService";
+import { useEffect, useState } from "react";
 
 const DAILY_LOGIN_REWARDS = [40, 50, 60, 80, 100, 120, 200];
 
