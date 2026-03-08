@@ -14,10 +14,160 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      challenges: {
+        Row: {
+          challenger_guesses: number | null
+          challenger_id: string | null
+          challenger_score: number | null
+          challenger_won: boolean | null
+          created_at: string
+          creator_guesses: number | null
+          creator_id: string
+          creator_score: number | null
+          creator_won: boolean | null
+          id: string
+          player_id: number
+          share_code: string
+          status: string
+        }
+        Insert: {
+          challenger_guesses?: number | null
+          challenger_id?: string | null
+          challenger_score?: number | null
+          challenger_won?: boolean | null
+          created_at?: string
+          creator_guesses?: number | null
+          creator_id: string
+          creator_score?: number | null
+          creator_won?: boolean | null
+          id?: string
+          player_id: number
+          share_code?: string
+          status?: string
+        }
+        Update: {
+          challenger_guesses?: number | null
+          challenger_id?: string | null
+          challenger_score?: number | null
+          challenger_won?: boolean | null
+          created_at?: string
+          creator_guesses?: number | null
+          creator_id?: string
+          creator_score?: number | null
+          creator_won?: boolean | null
+          id?: string
+          player_id?: number
+          share_code?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      game_results: {
+        Row: {
+          guesses: number
+          hints_used: number
+          id: string
+          mode: string
+          played_at: string
+          player_id: number
+          score: number
+          user_id: string
+          won: boolean
+        }
+        Insert: {
+          guesses: number
+          hints_used?: number
+          id?: string
+          mode: string
+          played_at?: string
+          player_id: number
+          score?: number
+          user_id: string
+          won?: boolean
+        }
+        Update: {
+          guesses?: number
+          hints_used?: number
+          id?: string
+          mode?: string
+          played_at?: string
+          player_id?: number
+          score?: number
+          user_id?: string
+          won?: boolean
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          best_streak: number
+          coins: number
+          created_at: string
+          display_name: string
+          id: string
+          streak: number
+          total_correct: number
+          total_played: number
+          total_score: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          best_streak?: number
+          coins?: number
+          created_at?: string
+          display_name?: string
+          id?: string
+          streak?: number
+          total_correct?: number
+          total_played?: number
+          total_score?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          best_streak?: number
+          coins?: number
+          created_at?: string
+          display_name?: string
+          id?: string
+          streak?: number
+          total_correct?: number
+          total_played?: number
+          total_score?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      all_time_leaderboard: {
+        Row: {
+          avatar_url: string | null
+          best_streak: number | null
+          display_name: string | null
+          total_correct: number | null
+          total_played: number | null
+          total_score: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
+      weekly_leaderboard: {
+        Row: {
+          avatar_url: string | null
+          display_name: string | null
+          user_id: string | null
+          weekly_games: number | null
+          weekly_score: number | null
+          weekly_wins: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
