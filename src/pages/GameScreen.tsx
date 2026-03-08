@@ -23,6 +23,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { CAMPAIGN_LEVELS, getLevelProgress, saveLevelProgress } from "@/pages/CampaignScreen";
+import { fireWinConfetti, hapticSuccess, hapticError } from "@/lib/feedback";
 
 const MAX_GUESSES = 5;
 
@@ -220,6 +221,8 @@ export default function GameScreen() {
         saveLevelProgress(progress);
       }
 
+      fireWinConfetti();
+      hapticSuccess();
       toast.success(`+${score} points! 🎉`);
     } else if (newGuesses.length >= MAX_GUESSES) {
       setGameOver(true);
@@ -232,8 +235,10 @@ export default function GameScreen() {
       saveGameState(newState);
       setGameState(newState);
       saveResultToCloud(0, newGuesses.length, false);
+      hapticError();
       toast.error(`The answer was ${player.name}`);
     } else {
+      hapticError();
       toast.error("Wrong! Try again");
     }
   };

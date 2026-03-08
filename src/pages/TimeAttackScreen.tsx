@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import { fireWinConfetti, hapticSuccess, hapticError, hapticLight } from "@/lib/feedback";
 
 const TOTAL_ROUNDS = 10;
 const TIME_LIMIT = 90; // seconds
@@ -75,9 +76,11 @@ export default function TimeAttackScreen() {
       setScore((s) => s + roundScore);
       setCorrectCount((c) => c + 1);
       setShowResult("correct");
+      hapticSuccess();
       toast.success(`+${roundScore} pts!`);
     } else {
       setShowResult("wrong");
+      hapticError();
       toast.error(`It was ${currentPlayer.name}`);
     }
 
@@ -108,6 +111,7 @@ export default function TimeAttackScreen() {
   // Save results when game over
   useEffect(() => {
     if (!gameOver || !gameStarted) return;
+    if (correctCount >= 5) fireWinConfetti();
     const state = loadGameState();
     const goldReward = Math.floor(score / 10);
     const newState = { ...state, coins: state.coins + goldReward };
