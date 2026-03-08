@@ -453,7 +453,7 @@ export default function GameScreen() {
                 onClick={handlePlayAgain}
                 className="rounded-xl bg-secondary border border-border px-4 py-2.5 font-display font-semibold text-sm text-foreground"
               >
-                {isDaily ? "Home" : "Play Again"}
+                {isDaily ? "Home" : isCampaign && won ? "Next Level" : isCampaign ? "Campaign" : "Play Again"}
               </button>
             </div>
           </motion.div>
