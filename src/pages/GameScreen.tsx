@@ -69,9 +69,16 @@ export default function GameScreen() {
     if (isChallenge && challengeData) {
       return players.find((p) => p.id === challengeData.player_id) || getDailyPlayer();
     }
+    if (isCampaign && campaignLevel) {
+      const lvl = CAMPAIGN_LEVELS.find((l) => l.level === parseInt(campaignLevel));
+      if (lvl) {
+        const found = players.find((p) => p.id === lvl.playerId);
+        if (found) return found;
+      }
+    }
     if (isDaily) return getDailyPlayer();
     return getRandomPlayer(gameState.playedPlayerIds);
-  }, [isDaily, isChallenge, challengeData]);
+  }, [isDaily, isChallenge, isCampaign, campaignLevel, challengeData]);
 
   const visibleClubs = useMemo(() => {
     const clubs = player.careerClubs.map((club, i) => ({
