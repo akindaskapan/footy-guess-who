@@ -304,7 +304,13 @@ export default function GameScreen() {
       hapticSuccess();
       setEarnedScore(score);
       toast.success(`+${score} puan! 🎉`);
-    } else if (newGuesses.length >= MAX_GUESSES) {
+    } else if (newGuesses.length >= effectiveMaxGuesses) {
+      // If extra guess not used yet, offer it instead of ending
+      if (!extraGuessUsed && newGuesses.length === MAX_GUESSES) {
+        setShowExtraGuessOffer(true);
+        hapticError();
+        return;
+      }
       setGameOver(true);
       const newState: GameState = {
         ...gameState,
@@ -324,6 +330,55 @@ export default function GameScreen() {
       hapticError();
       toast.error("Wrong! Try again");
     }
+  };
+
+  const EXTRA_GUESS_GOLD_COST = 75;
+
+  const handleExtraGuessAd = async () => {
+    const rewarded = await showRewardedAd();
+    if (!rewarded) {
+      toast.error("Reklam tamamlanamadı, tekrar deneyin.");
+      return;
+    }
+    hapticSuccess();
+    setExtraGuessUsed(true);
+    setShowExtraGuessOffer(false);
+    toast.success("Ekstra tahmin hakkı kazanıldı! 🎬");
+  };
+
+  const handleExtraGuessGold = () => {
+    const currentCoins = profile?.coins ?? gameState.coins;
+    if (currentCoins < EXTRA_GUESS_GOLD_COST) {
+      toast.error(`Yeterli altın yok! ${EXTRA_GUESS_GOLD_COST} 💎 gerekli.`);
+      return;
+    }
+    hapticSuccess();
+    const newState = { ...gameState, coins: gameState.coins - EXTRA_GUESS_GOLD_COST };
+    saveGameState(newState);
+    setGameState(newState);
+    if (profile) updateProfile({ coins: (profile.coins ?? 0) - EXTRA_GUESS_GOLD_COST });
+    setExtraGuessUsed(true);
+    setShowExtraGuessOffer(false);
+    toast.success("Ekstra tahmin hakkı açıldı! 🔓");
+  };
+
+  const handleExtraGuessSkip = () => {
+    setShowExtraGuessOffer(false);
+    // Trigger game over
+    setGameOver(true);
+    const newState: GameState = {
+      ...gameState,
+      totalPlayed: gameState.totalPlayed + 1,
+      streak: 0,
+      playedPlayerIds: [...gameState.playedPlayerIds, player.id],
+    };
+    saveGameState(newState);
+    setGameState(newState);
+    saveResultToCloud(0, guesses.length, false);
+    if (isCampaign && campaignLevel) {
+      saveCampaignResult(parseInt(campaignLevel), { guesses, won: false, playerName: player.name });
+    }
+    toast.error(`Cevap: ${player.name}`);
   };
 
   const handleHint = (type: "letter" | "country" | "position" | "club") => {
