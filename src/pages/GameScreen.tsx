@@ -320,17 +320,17 @@ export default function GameScreen() {
     >
       {/* Top Bar */}
       <div className="px-4 pt-6 pb-2 flex items-center justify-between">
-        <button onClick={() => navigate("/")} className="p-2 rounded-lg hover:bg-secondary">
+        <button onClick={() => navigate(isCampaign ? "/campaign" : "/")} className="p-2 rounded-lg hover:bg-secondary">
           <ArrowLeft className="w-5 h-5 text-foreground" />
         </button>
         <h2 className="font-display font-bold text-sm text-foreground uppercase tracking-wider">
-          {isChallenge ? "Challenge" : isDaily ? "Daily Challenge" : isHardcore ? "Hardcore" : "Unlimited"}
+          {isChallenge ? "Challenge" : isCampaign ? `Level ${campaignLevel}` : isDaily ? "Daily Challenge" : isHardcore ? "Hardcore" : "Unlimited"}
         </h2>
         <div className="flex items-center gap-1 text-accent">
           <span className="font-display font-bold text-sm">
             {profile?.coins ?? gameState.coins}
           </span>
-          <span>🪙</span>
+          <span>💎</span>
         </div>
       </div>
 
