@@ -62,10 +62,14 @@ export default function CampaignScreen() {
 
   const userGold = profile?.coins ?? 0;
 
-  const handleWatchAd = () => {
+  const handleWatchAd = async () => {
     if (!selectedLocked) return;
+    const rewarded = await showRewardedAd();
+    if (!rewarded) {
+      toast.error("Reklam tamamlanamadı, tekrar deneyin.");
+      return;
+    }
     hapticSuccess();
-    // Simulate rewarded ad
     toast.success("Reklam izlendi! Seviye açıldı 🎬");
     const newProgress = {
       ...progress,
