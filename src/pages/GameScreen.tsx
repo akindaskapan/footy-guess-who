@@ -70,13 +70,6 @@ export default function GameScreen() {
   const [earnedScore, setEarnedScore] = useState(0);
   const [rewardDoubled, setRewardDoubled] = useState(false);
 
-  // Load persisted hints for this player
-  useEffect(() => {
-    if (!isDaily) {
-      const saved = loadSavedHints(player.id);
-      if (saved) setHintsUsed(saved);
-    }
-  }, [player.id, isDaily]);
 
   // Initialize ads for campaign mode
   useEffect(() => {
