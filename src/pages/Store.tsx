@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Coins, Gem, Shield, Gift, Sparkles, Crown, Zap, Eye } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { loadGameState, saveGameState } from "@/lib/gameState";
+import { loadGameState, saveGameState, getSkipUsesLeft, resetSkipUses, MAX_FREE_SKIPS, SKIP_PURCHASE_PRICE } from "@/lib/gameState";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { hapticSuccess } from "@/lib/feedback";
@@ -38,6 +38,7 @@ export default function Store() {
   const state = loadGameState();
   const coins = profile?.coins ?? state.coins;
   const [adCooldown, setAdCooldown] = useState(false);
+  const [skipCount, setSkipCount] = useState(getSkipUsesLeft());
 
   useEffect(() => { initializeAds(); }, []);
 
@@ -281,6 +282,46 @@ export default function Store() {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Skip / Show Answer Pack */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Eye className="w-4 h-4 text-accent" />
+            <p className="text-xs font-body text-muted-foreground uppercase tracking-wider">Cevap Gösterme Hakkı</p>
+          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-xl border border-border bg-card p-4 space-y-3"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-display font-bold text-sm text-foreground">Kalan Hak</p>
+                <p className="text-xs text-muted-foreground font-body">Tahmin hakkın bitince cevabı görmek için kullanılır</p>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className={`font-display font-bold text-2xl ${skipCount > 0 ? "text-primary" : "text-destructive"}`}>
+                  {skipCount}
+                </span>
+                <span className="text-xs text-muted-foreground">/ {MAX_FREE_SKIPS}</span>
+              </div>
+            </div>
+            {skipCount === 0 && (
+              <button
+                onClick={() => {
+                  hapticSuccess();
+                  resetSkipUses();
+                  setSkipCount(MAX_FREE_SKIPS);
+                  toast.success(`${MAX_FREE_SKIPS} cevap gösterme hakkı satın alındı! ✅`);
+                }}
+                className="w-full p-3 rounded-xl bg-primary/10 border border-primary/30 hover:bg-primary/20 transition-colors text-center"
+              >
+                <p className="font-display font-bold text-sm text-foreground">{MAX_FREE_SKIPS} Hak Satın Al</p>
+                <p className="text-xs font-bold text-primary">{SKIP_PURCHASE_PRICE}</p>
+              </button>
+            )}
+          </motion.div>
         </div>
 
         {/* Premium Items */}

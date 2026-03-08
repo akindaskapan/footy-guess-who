@@ -11,6 +11,10 @@ import {
   HINT_COSTS,
   calculateScore,
   getTodayStr,
+  getSkipUsesLeft,
+  consumeSkipUse,
+  resetSkipUses,
+  SKIP_PURCHASE_PRICE,
 } from "@/lib/gameState";
 import { Silhouette } from "@/components/game/Silhouette";
 import { ClubCard } from "@/components/game/ClubCard";
@@ -28,19 +32,6 @@ import { showInterstitialAd, showRewardedAd, initializeAds } from "@/lib/adServi
 
 const MAX_GUESSES = 5;
 
-const SKIP_STORAGE_KEY = "gtf_skip_uses";
-const MAX_FREE_SKIPS = 5;
-const SKIP_PURCHASE_PRICE = "₺9.99";
-
-function getSkipUsesLeft(): number {
-  const used = parseInt(localStorage.getItem(SKIP_STORAGE_KEY) || "0");
-  return Math.max(0, MAX_FREE_SKIPS - used);
-}
-
-function consumeSkipUse(): void {
-  const used = parseInt(localStorage.getItem(SKIP_STORAGE_KEY) || "0");
-  localStorage.setItem(SKIP_STORAGE_KEY, String(used + 1));
-}
 
 type HintsState = { letter: boolean; country: boolean; position: boolean; club: boolean };
 
@@ -401,7 +392,7 @@ export default function GameScreen() {
   const handlePurchaseSkips = () => {
     // In production, trigger real IAP here
     hapticSuccess();
-    localStorage.setItem(SKIP_STORAGE_KEY, "0"); // Reset uses
+    resetSkipUses();
     setShowSkipPurchase(false);
     toast.success("5 cevap gösterme hakkı satın alındı! ✅");
     // Now auto-skip
