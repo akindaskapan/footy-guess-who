@@ -11,6 +11,10 @@ import {
   HINT_COSTS,
   calculateScore,
   getTodayStr,
+  getSkipUsesLeft,
+  consumeSkipUse,
+  resetSkipUses,
+  SKIP_PURCHASE_PRICE,
 } from "@/lib/gameState";
 import { Silhouette } from "@/components/game/Silhouette";
 import { ClubCard } from "@/components/game/ClubCard";
