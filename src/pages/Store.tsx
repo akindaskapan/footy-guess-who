@@ -39,6 +39,9 @@ export default function Store() {
   const coins = profile?.coins ?? state.coins;
   const [adCooldown, setAdCooldown] = useState(false);
   const [skipCount, setSkipCount] = useState(getSkipUsesLeft());
+  const [adsWatched, setAdsWatched] = useState(0);
+  const [adLoading, setAdLoading] = useState(false);
+  const ADS_REQUIRED = 3;
 
   useEffect(() => { initializeAds(); }, []);
 
@@ -308,18 +311,74 @@ export default function Store() {
               </div>
             </div>
             {skipCount === 0 && (
-              <button
-                onClick={() => {
-                  hapticSuccess();
-                  resetSkipUses();
-                  setSkipCount(MAX_FREE_SKIPS);
-                  toast.success(`${MAX_FREE_SKIPS} cevap gösterme hakkı satın alındı! ✅`);
-                }}
-                className="w-full p-3 rounded-xl bg-primary/10 border border-primary/30 hover:bg-primary/20 transition-colors text-center"
-              >
-                <p className="font-display font-bold text-sm text-foreground">{MAX_FREE_SKIPS} Hak Satın Al</p>
-                <p className="text-xs font-bold text-primary">{SKIP_PURCHASE_PRICE}</p>
-              </button>
+              <div className="space-y-2">
+                {/* Watch ads option */}
+                <button
+                  onClick={async () => {
+                    if (adLoading) return;
+                    setAdLoading(true);
+                    const rewarded = await showRewardedAd();
+                    setAdLoading(false);
+                    if (!rewarded) {
+                      toast.error("Reklam tamamlanamadı, tekrar deneyin.");
+                      return;
+                    }
+                    const newCount = adsWatched + 1;
+                    setAdsWatched(newCount);
+                    if (newCount >= ADS_REQUIRED) {
+                      hapticSuccess();
+                      resetSkipUses();
+                      setSkipCount(MAX_FREE_SKIPS);
+                      setAdsWatched(0);
+                      toast.success(`${MAX_FREE_SKIPS} cevap gösterme hakkı kazanıldı! 🎬`);
+                    } else {
+                      toast.success(`Reklam ${newCount}/${ADS_REQUIRED} izlendi ✓`);
+                    }
+                  }}
+                  disabled={adLoading}
+                  className="w-full p-3 rounded-xl bg-primary/10 border border-primary/30 hover:bg-primary/20 transition-colors text-center"
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    <Eye className="w-4 h-4 text-primary" />
+                    <p className="font-display font-bold text-sm text-foreground">
+                      {adLoading ? "Reklam yükleniyor..." : `Reklam İzle (${adsWatched}/${ADS_REQUIRED})`}
+                    </p>
+                  </div>
+                  <p className="text-xs text-muted-foreground font-body mt-1">
+                    {ADS_REQUIRED} reklam izleyerek {MAX_FREE_SKIPS} hak kazan
+                  </p>
+                  {adsWatched > 0 && (
+                    <div className="flex gap-1 mt-2 justify-center">
+                      {Array.from({ length: ADS_REQUIRED }).map((_, i) => (
+                        <div
+                          key={i}
+                          className={`w-8 h-1.5 rounded-full ${i < adsWatched ? "bg-primary" : "bg-secondary"}`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </button>
+
+                {/* Or pay option */}
+                <div className="flex items-center gap-2 px-2">
+                  <div className="flex-1 h-px bg-border" />
+                  <span className="text-[10px] text-muted-foreground font-body">veya</span>
+                  <div className="flex-1 h-px bg-border" />
+                </div>
+                <button
+                  onClick={() => {
+                    hapticSuccess();
+                    resetSkipUses();
+                    setSkipCount(MAX_FREE_SKIPS);
+                    setAdsWatched(0);
+                    toast.success(`${MAX_FREE_SKIPS} cevap gösterme hakkı satın alındı! ✅`);
+                  }}
+                  className="w-full p-3 rounded-xl bg-accent/10 border border-accent/30 hover:bg-accent/20 transition-colors text-center"
+                >
+                  <p className="font-display font-bold text-sm text-foreground">{MAX_FREE_SKIPS} Hak Satın Al</p>
+                  <p className="text-xs font-bold text-accent">{SKIP_PURCHASE_PRICE}</p>
+                </button>
+              </div>
             )}
           </motion.div>
         </div>
