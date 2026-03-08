@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Lock, CheckCircle, Star, Play, Coins, Unlock, Eye, Trophy } from "lucide-react";
+import { ArrowLeft, Lock, CheckCircle, Star, Play, Coins, Unlock, Eye, EyeOff, Trophy } from "lucide-react";
 import { players } from "@/data/players";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
@@ -190,6 +190,8 @@ export default function CampaignScreen() {
             const isCompleted = progress.completedLevels.includes(lvl.level);
             const isCurrent = lvl.level === progress.currentLevel;
             const isLocked = lvl.level > progress.currentLevel;
+            const result = isCompleted ? loadCampaignResult(lvl.level) : null;
+            const isWon = result?.won ?? false;
 
             return (
               <motion.button
@@ -202,7 +204,6 @@ export default function CampaignScreen() {
                     hapticMedium();
                     setSelectedLocked(lvl);
                   } else if (isCompleted) {
-                    const result = loadCampaignResult(lvl.level);
                     if (result) {
                       setSelectedCompleted({ level: lvl, result });
                     } else {
@@ -214,7 +215,9 @@ export default function CampaignScreen() {
                 }}
                 className={`relative aspect-square rounded-xl flex flex-col items-center justify-center text-center transition-transform active:scale-95 ${
                   isCompleted
-                    ? "bg-primary/20 border border-primary/30"
+                    ? isWon
+                      ? "bg-primary/20 border border-primary/30"
+                      : "bg-muted/30 border border-muted-foreground/20"
                     : isCurrent
                     ? "bg-accent/20 border-2 border-accent glow-gold"
                     : isLocked
@@ -223,7 +226,11 @@ export default function CampaignScreen() {
                 }`}
               >
                 {isCompleted ? (
-                  <CheckCircle className="w-5 h-5 text-primary" />
+                  isWon ? (
+                    <CheckCircle className="w-5 h-5 text-primary" />
+                  ) : (
+                    <EyeOff className="w-5 h-5 text-muted-foreground" />
+                  )
                 ) : isLocked ? (
                   <Lock className="w-4 h-4 text-muted-foreground" />
                 ) : (
