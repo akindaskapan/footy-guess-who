@@ -301,6 +301,15 @@ export default function GameScreen() {
   const handlePlayAgain = () => {
     if (isDaily) {
       navigate("/");
+    } else if (isCampaign) {
+      // Go to next level or back to campaign
+      const nextLevel = campaignLevel ? parseInt(campaignLevel) + 1 : 1;
+      if (won && nextLevel <= CAMPAIGN_LEVELS.length) {
+        navigate(`/play/campaign?level=${nextLevel}`);
+        window.location.reload();
+      } else {
+        navigate("/campaign");
+      }
     } else {
       setGuesses([]);
       setWon(false);
