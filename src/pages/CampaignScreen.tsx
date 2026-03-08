@@ -201,6 +201,13 @@ export default function CampaignScreen() {
                   if (isLocked) {
                     hapticMedium();
                     setSelectedLocked(lvl);
+                  } else if (isCompleted) {
+                    const result = loadCampaignResult(lvl.level);
+                    if (result) {
+                      setSelectedCompleted({ level: lvl, result });
+                    } else {
+                      navigate(`/play/campaign?level=${lvl.level}`);
+                    }
                   } else {
                     navigate(`/play/campaign?level=${lvl.level}`);
                   }
