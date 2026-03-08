@@ -22,6 +22,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { CAMPAIGN_LEVELS, getLevelProgress, saveLevelProgress } from "@/pages/CampaignScreen";
 
 const MAX_GUESSES = 5;
 
@@ -29,10 +30,12 @@ export default function GameScreen() {
   const { mode } = useParams<{ mode: string }>();
   const [searchParams] = useSearchParams();
   const challengeCode = searchParams.get("challenge");
+  const campaignLevel = searchParams.get("level");
   const navigate = useNavigate();
   const { user, profile, updateProfile, refreshProfile } = useAuth();
   const isDaily = mode === "daily";
   const isHardcore = mode === "hardcore";
+  const isCampaign = mode === "campaign";
   const isChallenge = !!challengeCode;
 
   const [gameState, setGameState] = useState<GameState>(() => {
@@ -66,9 +69,16 @@ export default function GameScreen() {
     if (isChallenge && challengeData) {
       return players.find((p) => p.id === challengeData.player_id) || getDailyPlayer();
     }
+    if (isCampaign && campaignLevel) {
+      const lvl = CAMPAIGN_LEVELS.find((l) => l.level === parseInt(campaignLevel));
+      if (lvl) {
+        const found = players.find((p) => p.id === lvl.playerId);
+        if (found) return found;
+      }
+    }
     if (isDaily) return getDailyPlayer();
     return getRandomPlayer(gameState.playedPlayerIds);
-  }, [isDaily, isChallenge, challengeData]);
+  }, [isDaily, isChallenge, isCampaign, campaignLevel, challengeData]);
 
   const visibleClubs = useMemo(() => {
     const clubs = player.careerClubs.map((club, i) => ({
@@ -198,6 +208,18 @@ export default function GameScreen() {
       saveGameState(newState);
       setGameState(newState);
       saveResultToCloud(score, newGuesses.length, true);
+
+      // Save campaign progress
+      if (isCampaign && campaignLevel) {
+        const lvlNum = parseInt(campaignLevel);
+        const progress = getLevelProgress();
+        if (!progress.completedLevels.includes(lvlNum)) {
+          progress.completedLevels.push(lvlNum);
+        }
+        progress.currentLevel = Math.max(progress.currentLevel, lvlNum + 1);
+        saveLevelProgress(progress);
+      }
+
       toast.success(`+${score} points! 🎉`);
     } else if (newGuesses.length >= MAX_GUESSES) {
       setGameOver(true);
@@ -279,6 +301,15 @@ export default function GameScreen() {
   const handlePlayAgain = () => {
     if (isDaily) {
       navigate("/");
+    } else if (isCampaign) {
+      // Go to next level or back to campaign
+      const nextLevel = campaignLevel ? parseInt(campaignLevel) + 1 : 1;
+      if (won && nextLevel <= CAMPAIGN_LEVELS.length) {
+        navigate(`/play/campaign?level=${nextLevel}`);
+        window.location.reload();
+      } else {
+        navigate("/campaign");
+      }
     } else {
       setGuesses([]);
       setWon(false);
@@ -298,17 +329,17 @@ export default function GameScreen() {
     >
       {/* Top Bar */}
       <div className="px-4 pt-6 pb-2 flex items-center justify-between">
-        <button onClick={() => navigate("/")} className="p-2 rounded-lg hover:bg-secondary">
+        <button onClick={() => navigate(isCampaign ? "/campaign" : "/")} className="p-2 rounded-lg hover:bg-secondary">
           <ArrowLeft className="w-5 h-5 text-foreground" />
         </button>
         <h2 className="font-display font-bold text-sm text-foreground uppercase tracking-wider">
-          {isChallenge ? "Challenge" : isDaily ? "Daily Challenge" : isHardcore ? "Hardcore" : "Unlimited"}
+          {isChallenge ? "Challenge" : isCampaign ? `Level ${campaignLevel}` : isDaily ? "Daily Challenge" : isHardcore ? "Hardcore" : "Unlimited"}
         </h2>
         <div className="flex items-center gap-1 text-accent">
           <span className="font-display font-bold text-sm">
             {profile?.coins ?? gameState.coins}
           </span>
-          <span>🪙</span>
+          <span>💎</span>
         </div>
       </div>
 
@@ -422,7 +453,7 @@ export default function GameScreen() {
                 onClick={handlePlayAgain}
                 className="rounded-xl bg-secondary border border-border px-4 py-2.5 font-display font-semibold text-sm text-foreground"
               >
-                {isDaily ? "Home" : "Play Again"}
+                {isDaily ? "Home" : isCampaign && won ? "Next Level" : isCampaign ? "Campaign" : "Play Again"}
               </button>
             </div>
           </motion.div>
