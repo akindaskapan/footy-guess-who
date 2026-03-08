@@ -102,6 +102,25 @@ export const HINT_COSTS = {
   club: 40,
 } as const;
 
+// Skip (show answer) system
+const SKIP_STORAGE_KEY = "gtf_skip_uses";
+export const MAX_FREE_SKIPS = 5;
+export const SKIP_PURCHASE_PRICE = "₺9.99";
+
+export function getSkipUsesLeft(): number {
+  const used = parseInt(localStorage.getItem(SKIP_STORAGE_KEY) || "0");
+  return Math.max(0, MAX_FREE_SKIPS - used);
+}
+
+export function consumeSkipUse(): void {
+  const used = parseInt(localStorage.getItem(SKIP_STORAGE_KEY) || "0");
+  localStorage.setItem(SKIP_STORAGE_KEY, String(used + 1));
+}
+
+export function resetSkipUses(): void {
+  localStorage.setItem(SKIP_STORAGE_KEY, "0");
+}
+
 // Scoring
 export function calculateScore(guessNumber: number, hintsUsed: number): number {
   let score = 100;
