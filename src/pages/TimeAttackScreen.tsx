@@ -111,6 +111,7 @@ export default function TimeAttackScreen() {
   // Save results when game over
   useEffect(() => {
     if (!gameOver || !gameStarted) return;
+    if (correctCount >= 5) fireWinConfetti();
     const state = loadGameState();
     const goldReward = Math.floor(score / 10);
     const newState = { ...state, coins: state.coins + goldReward };
