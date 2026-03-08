@@ -107,11 +107,10 @@ export default function GameScreen() {
   const [challengeData, setChallengeData] = useState<any>(null);
   const [earnedScore, setEarnedScore] = useState(0);
   const [rewardDoubled, setRewardDoubled] = useState(false);
+  const [extraGuessUsed, setExtraGuessUsed] = useState(false);
+  const [showExtraGuessOffer, setShowExtraGuessOffer] = useState(false);
 
-  // Initialize ads for campaign mode
-  useEffect(() => {
-    if (isCampaign) initializeAds();
-  }, [isCampaign]);
+  useEffect(() => { initializeAds(); }, []);
 
   // Load challenge data if applicable
   useEffect(() => {
@@ -253,8 +252,10 @@ export default function GameScreen() {
     }
   };
 
+  const effectiveMaxGuesses = extraGuessUsed ? MAX_GUESSES + 1 : MAX_GUESSES;
+
   const handleGuess = (name: string) => {
-    if (gameOver || guesses.length >= MAX_GUESSES) return;
+    if (gameOver || guesses.length >= effectiveMaxGuesses) return;
 
     const newGuesses = [...guesses, name];
     setGuesses(newGuesses);
@@ -300,7 +301,13 @@ export default function GameScreen() {
       hapticSuccess();
       setEarnedScore(score);
       toast.success(`+${score} puan! 🎉`);
-    } else if (newGuesses.length >= MAX_GUESSES) {
+    } else if (newGuesses.length >= effectiveMaxGuesses) {
+      // If extra guess not used yet, offer it instead of ending
+      if (!extraGuessUsed && newGuesses.length === MAX_GUESSES) {
+        setShowExtraGuessOffer(true);
+        hapticError();
+        return;
+      }
       setGameOver(true);
       const newState: GameState = {
         ...gameState,
@@ -320,6 +327,55 @@ export default function GameScreen() {
       hapticError();
       toast.error("Wrong! Try again");
     }
+  };
+
+  const EXTRA_GUESS_GOLD_COST = 75;
+
+  const handleExtraGuessAd = async () => {
+    const rewarded = await showRewardedAd();
+    if (!rewarded) {
+      toast.error("Reklam tamamlanamadı, tekrar deneyin.");
+      return;
+    }
+    hapticSuccess();
+    setExtraGuessUsed(true);
+    setShowExtraGuessOffer(false);
+    toast.success("Ekstra tahmin hakkı kazanıldı! 🎬");
+  };
+
+  const handleExtraGuessGold = () => {
+    const currentCoins = profile?.coins ?? gameState.coins;
+    if (currentCoins < EXTRA_GUESS_GOLD_COST) {
+      toast.error(`Yeterli altın yok! ${EXTRA_GUESS_GOLD_COST} 💎 gerekli.`);
+      return;
+    }
+    hapticSuccess();
+    const newState = { ...gameState, coins: gameState.coins - EXTRA_GUESS_GOLD_COST };
+    saveGameState(newState);
+    setGameState(newState);
+    if (profile) updateProfile({ coins: (profile.coins ?? 0) - EXTRA_GUESS_GOLD_COST });
+    setExtraGuessUsed(true);
+    setShowExtraGuessOffer(false);
+    toast.success("Ekstra tahmin hakkı açıldı! 🔓");
+  };
+
+  const handleExtraGuessSkip = () => {
+    setShowExtraGuessOffer(false);
+    // Trigger game over
+    setGameOver(true);
+    const newState: GameState = {
+      ...gameState,
+      totalPlayed: gameState.totalPlayed + 1,
+      streak: 0,
+      playedPlayerIds: [...gameState.playedPlayerIds, player.id],
+    };
+    saveGameState(newState);
+    setGameState(newState);
+    saveResultToCloud(0, guesses.length, false);
+    if (isCampaign && campaignLevel) {
+      saveCampaignResult(parseInt(campaignLevel), { guesses, won: false, playerName: player.name });
+    }
+    toast.error(`Cevap: ${player.name}`);
   };
 
   const handleHint = (type: "letter" | "country" | "position" | "club") => {
@@ -464,7 +520,7 @@ export default function GameScreen() {
 
       {/* Guess dots */}
       <div className="px-4 py-3">
-        <GuessHistory guesses={guesses} correctName={player.name} maxGuesses={MAX_GUESSES} />
+        <GuessHistory guesses={guesses} correctName={player.name} maxGuesses={effectiveMaxGuesses} />
       </div>
 
       {/* Scrollable content */}
@@ -584,10 +640,60 @@ export default function GameScreen() {
         )}
       </div>
 
+      {/* Extra Guess Offer */}
+      {showExtraGuessOffer && !gameOver && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mx-4 mb-2 rounded-2xl bg-card border-2 border-accent/40 p-5 space-y-3"
+        >
+          <div className="text-center space-y-1">
+            <p className="text-2xl">⏳</p>
+            <p className="font-display font-bold text-base text-foreground">Tahmin hakkın bitti!</p>
+            <p className="text-xs text-muted-foreground font-body">+1 ekstra tahmin hakkı almak için birini seç:</p>
+          </div>
+
+          <button
+            onClick={handleExtraGuessAd}
+            className="flex items-center gap-3 w-full p-3 rounded-xl bg-primary/10 border border-primary/20 hover:bg-primary/20 transition-colors"
+          >
+            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+              <span className="text-lg">🎬</span>
+            </div>
+            <div className="text-left flex-1">
+              <p className="font-display font-bold text-sm text-foreground">Reklam İzle</p>
+              <p className="text-xs text-muted-foreground">30 sn reklam izleyerek hak kazan</p>
+            </div>
+            <span className="text-xs font-bold text-primary">ÜCRETSİZ</span>
+          </button>
+
+          <button
+            onClick={handleExtraGuessGold}
+            className="flex items-center gap-3 w-full p-3 rounded-xl bg-accent/10 border border-accent/20 hover:bg-accent/20 transition-colors"
+          >
+            <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
+              <span className="text-lg">💎</span>
+            </div>
+            <div className="text-left flex-1">
+              <p className="font-display font-bold text-sm text-foreground">Altın ile Al</p>
+              <p className="text-xs text-muted-foreground">{EXTRA_GUESS_GOLD_COST} altın harca</p>
+            </div>
+            <span className="text-xs font-bold text-accent">{EXTRA_GUESS_GOLD_COST} 💎</span>
+          </button>
+
+          <button
+            onClick={handleExtraGuessSkip}
+            className="w-full text-center py-2 text-xs text-muted-foreground font-body hover:text-foreground transition-colors"
+          >
+            Vazgeç — Cevabı Göster
+          </button>
+        </motion.div>
+      )}
+
       {/* Input */}
-      {!gameOver && (
+      {!gameOver && !showExtraGuessOffer && (
         <div className="px-4 pb-6 pt-2 border-t border-border bg-background">
-          <GuessInput onGuess={handleGuess} disabled={gameOver} />
+          <GuessInput onGuess={handleGuess} disabled={gameOver || showExtraGuessOffer} />
         </div>
       )}
     </motion.div>
