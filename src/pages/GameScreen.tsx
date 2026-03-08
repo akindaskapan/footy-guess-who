@@ -70,14 +70,6 @@ export default function GameScreen() {
   const [earnedScore, setEarnedScore] = useState(0);
   const [rewardDoubled, setRewardDoubled] = useState(false);
 
-  // Load persisted hints for this player
-  useEffect(() => {
-    if (!isDaily) {
-      const saved = loadSavedHints(player.id);
-      if (saved) setHintsUsed(saved);
-    }
-  }, [player.id, isDaily]);
-
   // Initialize ads for campaign mode
   useEffect(() => {
     if (isCampaign) initializeAds();
@@ -111,6 +103,14 @@ export default function GameScreen() {
     if (isDaily) return getDailyPlayer();
     return getRandomPlayer(gameState.playedPlayerIds);
   }, [isDaily, isChallenge, isCampaign, campaignLevel, challengeData]);
+
+  // Load persisted hints for this player
+  useEffect(() => {
+    if (!isDaily) {
+      const saved = loadSavedHints(player.id);
+      if (saved) setHintsUsed(saved);
+    }
+  }, [player.id, isDaily]);
 
   const visibleClubs = useMemo(() => {
     const clubs = player.careerClubs.map((club, i) => ({
