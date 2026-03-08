@@ -392,7 +392,7 @@ export default function GameScreen() {
   const handlePurchaseSkips = () => {
     // In production, trigger real IAP here
     hapticSuccess();
-    localStorage.setItem(SKIP_STORAGE_KEY, "0"); // Reset uses
+    resetSkipUses();
     setShowSkipPurchase(false);
     toast.success("5 cevap gösterme hakkı satın alındı! ✅");
     // Now auto-skip
