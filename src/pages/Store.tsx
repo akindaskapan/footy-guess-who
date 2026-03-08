@@ -23,6 +23,15 @@ const PREMIUM_ITEMS = [
   { id: "rare_pack", label: "Rare Player Pack", goldCost: 80, icon: Gift, desc: "200 coins + 1 hint + 1 shield", color: "text-accent" },
 ];
 
+const GOLD_PACKS = [
+  { id: "pack_100", amount: 100, price: "₺29.99", label: "Starter", emoji: "💰", popular: false, bonus: 0 },
+  { id: "pack_550", amount: 550, price: "₺99.99", label: "Popular", emoji: "💎", popular: true, bonus: 50 },
+  { id: "pack_1200", amount: 1200, price: "₺179.99", label: "Best Value", emoji: "👑", popular: false, bonus: 200 },
+  { id: "pack_3000", amount: 3000, price: "₺349.99", label: "VIP", emoji: "🏆", popular: false, bonus: 500 },
+];
+
+const AD_REWARD_GOLD = 15;
+
 export default function Store() {
   const navigate = useNavigate();
   const { user, profile, updateProfile } = useAuth();
