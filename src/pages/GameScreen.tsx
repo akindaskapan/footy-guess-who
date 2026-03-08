@@ -28,6 +28,19 @@ import { showInterstitialAd, showRewardedAd, initializeAds } from "@/lib/adServi
 
 const MAX_GUESSES = 5;
 
+type HintsState = { letter: boolean; country: boolean; position: boolean; club: boolean };
+
+function loadSavedHints(playerId: number): HintsState | null {
+  try {
+    const raw = localStorage.getItem(`gtf_hints_${playerId}`);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function saveHints(playerId: number, hints: HintsState) {
+  localStorage.setItem(`gtf_hints_${playerId}`, JSON.stringify(hints));
+}
+
 export default function GameScreen() {
   const { mode } = useParams<{ mode: string }>();
   const [searchParams] = useSearchParams();
@@ -48,9 +61,11 @@ export default function GameScreen() {
   const [guesses, setGuesses] = useState<string[]>(isDaily ? gameState.dailyGuesses : []);
   const [won, setWon] = useState(isDaily ? gameState.dailyWon : false);
   const [gameOver, setGameOver] = useState(isDaily ? gameState.dailyCompleted : false);
-  const [hintsUsed, setHintsUsed] = useState(
-    isDaily ? gameState.hintsUsed : { letter: false, country: false, position: false, club: false }
-  );
+  const [hintsUsed, setHintsUsed] = useState<HintsState>(() => {
+    if (isDaily) return gameState.hintsUsed;
+    // Check for previously saved hints for this player
+    return { letter: false, country: false, position: false, club: false };
+  });
   const [challengeData, setChallengeData] = useState<any>(null);
   const [earnedScore, setEarnedScore] = useState(0);
   const [rewardDoubled, setRewardDoubled] = useState(false);
@@ -88,6 +103,14 @@ export default function GameScreen() {
     if (isDaily) return getDailyPlayer();
     return getRandomPlayer(gameState.playedPlayerIds);
   }, [isDaily, isChallenge, isCampaign, campaignLevel, challengeData]);
+
+  // Load persisted hints for this player
+  useEffect(() => {
+    if (!isDaily) {
+      const saved = loadSavedHints(player.id);
+      if (saved) setHintsUsed(saved);
+    }
+  }, [player.id, isDaily]);
 
   const visibleClubs = useMemo(() => {
     const clubs = player.careerClubs.map((club, i) => ({
@@ -260,7 +283,10 @@ export default function GameScreen() {
   const handleHint = (type: "letter" | "country" | "position" | "club") => {
     const cost = HINT_COSTS[type];
     if (gameState.coins < cost || hintsUsed[type]) return;
-    setHintsUsed((prev) => ({ ...prev, [type]: true }));
+    const newHints = { ...hintsUsed, [type]: true };
+    setHintsUsed(newHints);
+    // Persist hints for this player so they survive page reload
+    if (!isDaily) saveHints(player.id, newHints);
     const newState = { ...gameState, coins: gameState.coins - cost };
     saveGameState(newState);
     setGameState(newState);
