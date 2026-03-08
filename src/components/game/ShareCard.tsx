@@ -12,12 +12,11 @@ interface ShareCardProps {
 }
 
 export function ShareCard({ puzzleNumber, guesses, won, player, mode, hintsUsed }: ShareCardProps) {
-  const blocks = guesses.map((g, i) => {
+  const blocks: string[] = guesses.map((g, i) => {
     if (won && i === guesses.length - 1) return "🟩";
     return "⬛";
   });
 
-  // Pad remaining with empty
   const remaining = 5 - guesses.length;
   for (let i = 0; i < remaining; i++) blocks.push("⬜");
 
