@@ -48,12 +48,26 @@ const LEVELS_PER_PAGE = 30;
 const UNLOCK_COST = 50; // Gold to unlock one level
 const UNLOCK_ALL_COST = 500; // Gold to unlock all levels
 
+interface CampaignLevelResult {
+  guesses: string[];
+  won: boolean;
+  playerName: string;
+}
+
+function loadCampaignResult(level: number): CampaignLevelResult | null {
+  try {
+    const raw = localStorage.getItem(`gtf_campaign_result_${level}`);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
 export default function CampaignScreen() {
   const navigate = useNavigate();
   const { profile, updateProfile } = useAuth();
   const [progress, setProgress] = useState(getLevelProgress);
   const [page, setPage] = useState(0);
   const [selectedLocked, setSelectedLocked] = useState<typeof CAMPAIGN_LEVELS[0] | null>(null);
+  const [selectedCompleted, setSelectedCompleted] = useState<{ level: typeof CAMPAIGN_LEVELS[0]; result: CampaignLevelResult } | null>(null);
 
   const totalPages = Math.ceil(CAMPAIGN_LEVELS.length / LEVELS_PER_PAGE);
   const visibleLevels = CAMPAIGN_LEVELS.slice(
