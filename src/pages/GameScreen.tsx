@@ -208,6 +208,18 @@ export default function GameScreen() {
       saveGameState(newState);
       setGameState(newState);
       saveResultToCloud(score, newGuesses.length, true);
+
+      // Save campaign progress
+      if (isCampaign && campaignLevel) {
+        const lvlNum = parseInt(campaignLevel);
+        const progress = getLevelProgress();
+        if (!progress.completedLevels.includes(lvlNum)) {
+          progress.completedLevels.push(lvlNum);
+        }
+        progress.currentLevel = Math.max(progress.currentLevel, lvlNum + 1);
+        saveLevelProgress(progress);
+      }
+
       toast.success(`+${score} points! 🎉`);
     } else if (newGuesses.length >= MAX_GUESSES) {
       setGameOver(true);
