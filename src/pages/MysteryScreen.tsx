@@ -6,6 +6,7 @@ import {
   loadGameState,
   saveGameState,
   calculateScore,
+  calculateEarnedCoins,
   HINT_COSTS,
 } from "@/lib/gameState";
 import { Silhouette } from "@/components/game/Silhouette";
@@ -57,11 +58,12 @@ export default function MysteryScreen() {
     if (correct) {
       setWon(true);
       setGameOver(true);
-      const baseScore = calculateScore(newGuesses.length, hintRevealed ? 1 : 0);
-      const score = baseScore * MYSTERY_BONUS;
+      const baseXp = calculateScore(newGuesses.length, hintRevealed ? 1 : 0);
+      const xpGained = baseXp * MYSTERY_BONUS;
+      const coinsGained = calculateEarnedCoins(newGuesses.length, hintRevealed ? 1 : 0) * MYSTERY_BONUS;
       const newState = {
         ...gameState,
-        coins: gameState.coins + score,
+        coins: gameState.coins + coinsGained,
         totalCorrect: gameState.totalCorrect + 1,
         totalPlayed: gameState.totalPlayed + 1,
         playedPlayerIds: [...gameState.playedPlayerIds, player.id],
@@ -71,10 +73,10 @@ export default function MysteryScreen() {
 
       if (user && profile) {
         updateProfile({
-          total_score: (profile.total_score || 0) + score,
+          total_score: (profile.total_score || 0) + xpGained,
           total_played: (profile.total_played || 0) + 1,
           total_correct: (profile.total_correct || 0) + 1,
-          coins: (profile.coins || 0) + score,
+          coins: (profile.coins || 0) + coinsGained,
         });
         supabase.from("game_results").insert({
           user_id: user.id,
@@ -82,13 +84,13 @@ export default function MysteryScreen() {
           mode: "mystery",
           guesses: newGuesses.length,
           hints_used: hintRevealed ? 1 : 0,
-          score,
+          score: xpGained,
           won: true,
         });
       }
       fireWinConfetti();
       hapticSuccess();
-      toast.success(`+${score} points! (2x Mystery Bonus) 🎉`);
+      toast.success(`+${xpGained} XP, +${coinsGained} coins! (2x Mystery Bonus) 🎉`);
     } else if (newGuesses.length >= MAX_GUESSES) {
       setGameOver(true);
       const newState = {
