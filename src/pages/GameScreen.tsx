@@ -288,6 +288,7 @@ export default function GameScreen() {
         }
         progress.currentLevel = Math.max(progress.currentLevel, lvlNum + 1);
         saveLevelProgress(progress);
+        saveCampaignResult(lvlNum, { guesses: newGuesses, won: true, playerName: player.name });
 
         // Show interstitial ad every 4 completed levels
         if (lvlNum % 4 === 0) {
