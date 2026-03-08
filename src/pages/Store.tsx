@@ -38,6 +38,7 @@ export default function Store() {
   const state = loadGameState();
   const coins = profile?.coins ?? state.coins;
   const [adCooldown, setAdCooldown] = useState(false);
+  const [skipCount, setSkipCount] = useState(getSkipUsesLeft());
 
   useEffect(() => { initializeAds(); }, []);
 
