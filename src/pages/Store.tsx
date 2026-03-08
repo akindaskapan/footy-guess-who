@@ -327,10 +327,10 @@ export default function Store() {
                     setAdsWatched(newCount);
                     if (newCount >= ADS_REQUIRED) {
                       hapticSuccess();
-                      resetSkipUses();
-                      setSkipCount(MAX_FREE_SKIPS);
+                      addSkipCredit(1);
+                      setSkipCount(getSkipUsesLeft());
                       setAdsWatched(0);
-                      toast.success(`${MAX_FREE_SKIPS} cevap gösterme hakkı kazanıldı! 🎬`);
+                      toast.success("1 cevap gösterme hakkı kazanıldı! 🎬");
                     } else {
                       toast.success(`Reklam ${newCount}/${ADS_REQUIRED} izlendi ✓`);
                     }
@@ -345,7 +345,7 @@ export default function Store() {
                     </p>
                   </div>
                   <p className="text-xs text-muted-foreground font-body mt-1">
-                    {ADS_REQUIRED} reklam izleyerek {MAX_FREE_SKIPS} hak kazan
+                    {ADS_REQUIRED} reklam izleyerek 1 hak kazan
                   </p>
                   {adsWatched > 0 && (
                     <div className="flex gap-1 mt-2 justify-center">
