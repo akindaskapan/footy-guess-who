@@ -28,6 +28,20 @@ import { showInterstitialAd, showRewardedAd, initializeAds } from "@/lib/adServi
 
 const MAX_GUESSES = 5;
 
+const SKIP_STORAGE_KEY = "gtf_skip_uses";
+const MAX_FREE_SKIPS = 5;
+const SKIP_PURCHASE_PRICE = "₺9.99";
+
+function getSkipUsesLeft(): number {
+  const used = parseInt(localStorage.getItem(SKIP_STORAGE_KEY) || "0");
+  return Math.max(0, MAX_FREE_SKIPS - used);
+}
+
+function consumeSkipUse(): void {
+  const used = parseInt(localStorage.getItem(SKIP_STORAGE_KEY) || "0");
+  localStorage.setItem(SKIP_STORAGE_KEY, String(used + 1));
+}
+
 type HintsState = { letter: boolean; country: boolean; position: boolean; club: boolean };
 
 function loadSavedHints(playerId: number): HintsState | null {
@@ -109,6 +123,7 @@ export default function GameScreen() {
   const [rewardDoubled, setRewardDoubled] = useState(false);
   const [extraGuessUsed, setExtraGuessUsed] = useState(false);
   const [showExtraGuessOffer, setShowExtraGuessOffer] = useState(false);
+  const [showSkipPurchase, setShowSkipPurchase] = useState(false);
 
   useEffect(() => { initializeAds(); }, []);
 
@@ -360,8 +375,13 @@ export default function GameScreen() {
   };
 
   const handleExtraGuessSkip = () => {
+    const skipsLeft = getSkipUsesLeft();
+    if (skipsLeft <= 0) {
+      setShowSkipPurchase(true);
+      return;
+    }
+    consumeSkipUse();
     setShowExtraGuessOffer(false);
-    // Trigger game over
     setGameOver(true);
     const newState: GameState = {
       ...gameState,
@@ -376,6 +396,16 @@ export default function GameScreen() {
       saveCampaignResult(parseInt(campaignLevel), { guesses, won: false, playerName: player.name });
     }
     toast.error(`Cevap: ${player.name}`);
+  };
+
+  const handlePurchaseSkips = () => {
+    // In production, trigger real IAP here
+    hapticSuccess();
+    localStorage.setItem(SKIP_STORAGE_KEY, "0"); // Reset uses
+    setShowSkipPurchase(false);
+    toast.success("5 cevap gösterme hakkı satın alındı! ✅");
+    // Now auto-skip
+    handleExtraGuessSkip();
   };
 
   const handleHint = async (type: "letter" | "country" | "position" | "club") => {
@@ -683,8 +713,44 @@ export default function GameScreen() {
               <p className="font-display font-bold text-sm text-foreground">Altın ile Al</p>
               <p className="text-xs text-muted-foreground">{EXTRA_GUESS_GOLD_COST} altın harca</p>
             </div>
-            <span className="text-xs font-bold text-accent">{EXTRA_GUESS_GOLD_COST} 💎</span>
+           <span className="text-xs font-bold text-accent">{EXTRA_GUESS_GOLD_COST} 💎</span>
           </button>
+
+          <button
+            onClick={handleExtraGuessSkip}
+            className="w-full text-center py-2 text-xs text-muted-foreground font-body hover:text-foreground transition-colors"
+          >
+            Vazgeç — Cevabı Göster {getSkipUsesLeft() > 0 ? `(${getSkipUsesLeft()} hak kaldı)` : "🔒"}
+          </button>
+
+          {/* Skip purchase modal */}
+          {showSkipPurchase && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mt-2 rounded-xl border-2 border-destructive/30 bg-destructive/5 p-4 space-y-3"
+            >
+              <p className="text-sm font-display font-bold text-foreground text-center">
+                Cevap gösterme hakkın bitti!
+              </p>
+              <p className="text-xs text-muted-foreground text-center font-body">
+                5 yeni hak satın almak için:
+              </p>
+              <button
+                onClick={handlePurchaseSkips}
+                className="w-full p-3 rounded-xl bg-primary/10 border border-primary/30 hover:bg-primary/20 transition-colors text-center"
+              >
+                <p className="font-display font-bold text-sm text-foreground">5 Hak Satın Al</p>
+                <p className="text-xs font-bold text-primary">{SKIP_PURCHASE_PRICE}</p>
+              </button>
+              <button
+                onClick={() => setShowSkipPurchase(false)}
+                className="w-full text-center py-1 text-xs text-muted-foreground font-body hover:text-foreground"
+              >
+                İptal
+              </button>
+            </motion.div>
+          )}
 
         </motion.div>
       )}
