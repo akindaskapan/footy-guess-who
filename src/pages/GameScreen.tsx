@@ -146,7 +146,11 @@ export default function GameScreen() {
   const handleShare = async () => {
     const text = generateShareText(puzzleNumber, guesses, won, player);
     try {
-      await navigator.share?.({ text }) || navigator.clipboard.writeText(text);
+      if (navigator.share) {
+        await navigator.share({ text });
+      } else {
+        await navigator.clipboard.writeText(text);
+      }
       toast.success("Copied to clipboard!");
     } catch {
       navigator.clipboard.writeText(text);
