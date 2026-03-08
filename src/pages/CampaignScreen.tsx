@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Lock, CheckCircle, Star, Play, Coins, Unlock, Eye } from "lucide-react";
+import { ArrowLeft, Lock, CheckCircle, Star, Play, Coins, Unlock, Eye, Trophy } from "lucide-react";
 import { players } from "@/data/players";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
