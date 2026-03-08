@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Lock, CheckCircle, Star, Play, Coins, Unlock, Eye } from "lucide-react";
+import { ArrowLeft, Lock, CheckCircle, Star, Play, Coins, Unlock, Eye, Trophy } from "lucide-react";
 import { players } from "@/data/players";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
@@ -48,12 +48,26 @@ const LEVELS_PER_PAGE = 30;
 const UNLOCK_COST = 50; // Gold to unlock one level
 const UNLOCK_ALL_COST = 500; // Gold to unlock all levels
 
+interface CampaignLevelResult {
+  guesses: string[];
+  won: boolean;
+  playerName: string;
+}
+
+function loadCampaignResult(level: number): CampaignLevelResult | null {
+  try {
+    const raw = localStorage.getItem(`gtf_campaign_result_${level}`);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
 export default function CampaignScreen() {
   const navigate = useNavigate();
   const { profile, updateProfile } = useAuth();
   const [progress, setProgress] = useState(getLevelProgress);
   const [page, setPage] = useState(0);
   const [selectedLocked, setSelectedLocked] = useState<typeof CAMPAIGN_LEVELS[0] | null>(null);
+  const [selectedCompleted, setSelectedCompleted] = useState<{ level: typeof CAMPAIGN_LEVELS[0]; result: CampaignLevelResult } | null>(null);
 
   const totalPages = Math.ceil(CAMPAIGN_LEVELS.length / LEVELS_PER_PAGE);
   const visibleLevels = CAMPAIGN_LEVELS.slice(
@@ -187,6 +201,13 @@ export default function CampaignScreen() {
                   if (isLocked) {
                     hapticMedium();
                     setSelectedLocked(lvl);
+                  } else if (isCompleted) {
+                    const result = loadCampaignResult(lvl.level);
+                    if (result) {
+                      setSelectedCompleted({ level: lvl, result });
+                    } else {
+                      navigate(`/play/campaign?level=${lvl.level}`);
+                    }
                   } else {
                     navigate(`/play/campaign?level=${lvl.level}`);
                   }
@@ -299,6 +320,54 @@ export default function CampaignScreen() {
               </div>
               <span className="text-xs font-bold text-destructive">{UNLOCK_ALL_COST} 💎</span>
             </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Completed Level Result Dialog */}
+      <Dialog open={!!selectedCompleted} onOpenChange={(open) => !open && setSelectedCompleted(null)}>
+        <DialogContent className="max-w-xs rounded-2xl bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="font-display text-foreground text-center">
+              {selectedCompleted?.result.won ? "🎉" : "😔"} Seviye {selectedCompleted?.level.level}
+            </DialogTitle>
+            <DialogDescription className="text-center text-muted-foreground text-sm">
+              Bu seviye daha önce tamamlandı.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex flex-col items-center gap-3 mt-2">
+            <div className={`w-16 h-16 rounded-full flex items-center justify-center ${selectedCompleted?.result.won ? "bg-primary/20" : "bg-destructive/20"}`}>
+              {selectedCompleted?.result.won
+                ? <Trophy className="w-8 h-8 text-primary" />
+                : <span className="text-2xl">✗</span>
+              }
+            </div>
+
+            <div className="text-center space-y-1">
+              <p className="font-display font-bold text-lg text-foreground">
+                {selectedCompleted?.result.playerName}
+              </p>
+              <p className={`text-xs font-body ${getDifficultyColor(selectedCompleted?.level.difficulty || "")}`}>
+                {getDifficultyLabel(selectedCompleted?.level.difficulty || "")}
+              </p>
+            </div>
+
+            {selectedCompleted?.result.won && (
+              <div className="rounded-xl bg-primary/10 border border-primary/20 px-4 py-2 text-center">
+                <p className="text-xs text-muted-foreground font-body">Tahmin Sayısı</p>
+                <p className="font-display font-bold text-xl text-primary">
+                  {selectedCompleted.result.guesses.length} / 5
+                </p>
+              </div>
+            )}
+
+            {!selectedCompleted?.result.won && (
+              <div className="rounded-xl bg-destructive/10 border border-destructive/20 px-4 py-2 text-center">
+                <p className="text-xs text-muted-foreground font-body">Sonuç</p>
+                <p className="font-display font-bold text-sm text-destructive">Bilenemedi</p>
+              </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>
