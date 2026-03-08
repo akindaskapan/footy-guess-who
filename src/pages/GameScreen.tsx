@@ -123,6 +123,7 @@ export default function GameScreen() {
   const [rewardDoubled, setRewardDoubled] = useState(false);
   const [extraGuessUsed, setExtraGuessUsed] = useState(false);
   const [showExtraGuessOffer, setShowExtraGuessOffer] = useState(false);
+  const [showSkipPurchase, setShowSkipPurchase] = useState(false);
 
   useEffect(() => { initializeAds(); }, []);
 
