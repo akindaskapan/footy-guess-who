@@ -389,7 +389,12 @@ export default function GameScreen() {
     saveResultToCloud(0, guesses.length, false);
     if (isCampaign && campaignLevel) {
       const lvlNum = parseInt(campaignLevel);
-      // Save result but do NOT advance currentLevel — level stays locked
+      const progress = getLevelProgress();
+      // Mark level as completed but do NOT advance currentLevel — next level stays locked
+      if (!progress.completedLevels.includes(lvlNum)) {
+        progress.completedLevels.push(lvlNum);
+      }
+      saveLevelProgress(progress);
       saveCampaignResult(lvlNum, { guesses, won: false, playerName: player.name });
     }
     toast.error(`Cevap: ${player.name}`);
