@@ -32,6 +32,7 @@ import { CAMPAIGN_LEVELS, getLevelProgress, saveLevelProgress } from "@/pages/Ca
 import { fireWinConfetti, hapticSuccess, hapticError } from "@/lib/feedback";
 import { hasRankUp, getRank } from "@/lib/ranks";
 import { RankUpModal } from "@/components/RankUpModal";
+import { useChallengeTracker } from "@/hooks/useChallengeTracker";
 import { showInterstitialAd, showRewardedAd, initializeAds } from "@/lib/adService";
 
 const MAX_GUESSES = 5;

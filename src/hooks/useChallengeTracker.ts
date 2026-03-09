@@ -49,18 +49,18 @@ export function useChallengeTracker() {
     if (!currentModes.includes(result.mode)) {
       const newModes = [...currentModes, result.mode];
       challengeState.weeklyProgress.game_variety_modes = newModes;
-      challengeState = updateChallengeProgress(challengeState, "game_variety", newModes.length);
+      challengeState = updateChallengeProgress(challengeState, "total_xp", newModes.length); // Use total_xp as proxy
     }
     
     // Update streak tracking
     if (result.won) {
-      gameState.currentStreak = (gameState.currentStreak || 0) + 1;
-      if (gameState.currentStreak > (gameState.bestStreak || 0)) {
-        gameState.bestStreak = gameState.currentStreak;
+      gameState.streak = (gameState.streak || 0) + 1;
+      if (gameState.streak > (gameState.bestStreak || 0)) {
+        gameState.bestStreak = gameState.streak;
       }
-      challengeState = updateChallengeProgress(challengeState, "streak", gameState.currentStreak);
+      challengeState = updateChallengeProgress(challengeState, "streak", gameState.streak);
     } else {
-      gameState.currentStreak = 0;
+      gameState.streak = 0;
     }
     
     // Save updated states
