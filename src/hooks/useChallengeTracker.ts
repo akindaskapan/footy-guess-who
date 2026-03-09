@@ -48,8 +48,13 @@ export function useChallengeTracker() {
     const currentModes = challengeState.weeklyProgress.game_variety_modes || [];
     if (!currentModes.includes(result.mode)) {
       const newModes = [...currentModes, result.mode];
-      challengeState.weeklyProgress.game_variety_modes = newModes;
-      challengeState = updateChallengeProgress(challengeState, "total_xp", newModes.length); // Use total_xp as proxy
+      challengeState.weeklyProgress = {
+        ...challengeState.weeklyProgress,
+        game_variety_modes: newModes
+      };
+      // Track game variety count by updating a separate counter
+      challengeState = updateChallengeProgress(challengeState, "total_xp", 0); // Don't double count XP
+      challengeState.weeklyProgress.game_variety = newModes.length;
     }
     
     // Update streak tracking
