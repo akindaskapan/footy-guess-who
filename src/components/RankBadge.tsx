@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import { getRank } from "@/lib/ranks";
 
 interface RankBadgeProps {
@@ -6,19 +7,22 @@ interface RankBadgeProps {
   showLabel?: boolean;
 }
 
-export function RankBadge({ xp, size = "sm", showLabel = true }: RankBadgeProps) {
-  const rank = getRank(xp);
-  
-  const sizeClasses = {
-    sm: "px-1.5 py-0.5 text-[10px]",
-    md: "px-2 py-1 text-xs",
-    lg: "px-3 py-1.5 text-sm"
-  };
-  
-  return (
-    <div className={`inline-flex items-center gap-1 rounded-full font-display font-bold ${rank.bg} ${rank.color} ${sizeClasses[size]}`}>
-      <span>{rank.icon}</span>
-      {showLabel && <span>{rank.label}</span>}
-    </div>
-  );
-}
+export const RankBadge = forwardRef<HTMLDivElement, RankBadgeProps>(
+  ({ xp, size = "sm", showLabel = true }, ref) => {
+    const rank = getRank(xp);
+    
+    const sizeClasses = {
+      sm: "px-1.5 py-0.5 text-[10px]",
+      md: "px-2 py-1 text-xs",
+      lg: "px-3 py-1.5 text-sm"
+    };
+    
+    return (
+      <div ref={ref} className={`inline-flex items-center gap-1 rounded-full font-display font-bold ${rank.bg} ${rank.color} ${sizeClasses[size]}`}>
+        <span>{rank.icon}</span>
+        {showLabel && <span>{rank.label}</span>}
+      </div>
+    );
+  }
+);
+RankBadge.displayName = "RankBadge";
