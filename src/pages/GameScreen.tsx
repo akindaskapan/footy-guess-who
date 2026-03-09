@@ -30,6 +30,8 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { CAMPAIGN_LEVELS, getLevelProgress, saveLevelProgress } from "@/pages/CampaignScreen";
 import { fireWinConfetti, hapticSuccess, hapticError } from "@/lib/feedback";
+import { hasRankUp, getRank } from "@/lib/ranks";
+import { RankUpModal } from "@/components/RankUpModal";
 import { showInterstitialAd, showRewardedAd, initializeAds } from "@/lib/adService";
 
 const MAX_GUESSES = 5;
@@ -119,6 +121,11 @@ export default function GameScreen() {
   const [showSkipPurchase, setShowSkipPurchase] = useState(false);
   const [skipAdsWatched, setSkipAdsWatched] = useState(0);
   const [skipAdLoading, setSkipAdLoading] = useState(false);
+  const [rankUpModal, setRankUpModal] = useState<{ isOpen: boolean; newRank: any; oldRank: any }>({ 
+    isOpen: false, 
+    newRank: null, 
+    oldRank: null 
+  });
   const SKIP_ADS_REQUIRED = 3;
 
   useEffect(() => { initializeAds(); }, []);
@@ -218,10 +225,11 @@ export default function GameScreen() {
         won: didWin,
       });
 
-      // Update profile stats
+      // Update profile stats with rank up detection
       if (profile) {
+        const oldXP = profile.total_score || 0;
         const updates: any = {
-          total_score: (profile.total_score || 0) + score,
+          total_score: oldXP + score,
           total_played: (profile.total_played || 0) + 1,
           coins: (profile.coins || 0) + Math.floor(score / 5), // Much smaller coin reward
         };
@@ -234,6 +242,15 @@ export default function GameScreen() {
         } else if (isDaily) {
           updates.streak = 0;
         }
+        
+        // Check for rank up
+        const newXP = oldXP + score;
+        const rankUpInfo = hasRankUp(oldXP, newXP);
+        if (rankUpInfo) {
+          const oldRank = getRank(oldXP);
+          setRankUpModal({ isOpen: true, newRank: rankUpInfo, oldRank });
+        }
+        
         await updateProfile(updates);
       }
 
@@ -817,6 +834,14 @@ export default function GameScreen() {
           <GuessInput onGuess={handleGuess} disabled={gameOver || showExtraGuessOffer} />
         </div>
       )}
+
+      {/* Rank Up Modal */}
+      <RankUpModal
+        isOpen={rankUpModal.isOpen}
+        onClose={() => setRankUpModal({ isOpen: false, newRank: null, oldRank: null })}
+        newRank={rankUpModal.newRank}
+        oldRank={rankUpModal.oldRank}
+      />
     </motion.div>
   );
 }
