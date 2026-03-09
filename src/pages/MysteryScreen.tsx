@@ -20,6 +20,7 @@ import { motion } from "framer-motion";
 import { fireWinConfetti, hapticSuccess, hapticError } from "@/lib/feedback";
 import { hasRankUp, getRank } from "@/lib/ranks";
 import { RankUpModal } from "@/components/RankUpModal";
+import { useChallengeTracker } from "@/hooks/useChallengeTracker";
 
 const MAX_GUESSES = 5;
 const MYSTERY_BONUS = 2; // 2x rewards
@@ -27,6 +28,7 @@ const MYSTERY_BONUS = 2; // 2x rewards
 export default function MysteryScreen() {
   const navigate = useNavigate();
   const { user, profile, updateProfile } = useAuth();
+  const { trackGameResult } = useChallengeTracker();
 
   const [gameState, setGameState] = useState(loadGameState);
   const [player] = useState<Player>(() => getRandomPlayer(gameState.playedPlayerIds));
@@ -106,6 +108,16 @@ export default function MysteryScreen() {
           won: true,
         });
       }
+      
+      // Track challenge progress
+      trackGameResult({
+        won: true,
+        guesses: newGuesses.length,
+        hintsUsed: hintRevealed ? 1 : 0,
+        mode: "mystery",
+        xpGained
+      });
+      
       fireWinConfetti();
       hapticSuccess();
       toast.success(`+${xpGained} XP, +${coinsGained} coins! (2x Mystery Bonus) 🎉`);
@@ -131,6 +143,16 @@ export default function MysteryScreen() {
           won: false,
         });
       }
+      
+      // Track challenge progress for loss
+      trackGameResult({
+        won: false,
+        guesses: newGuesses.length,
+        hintsUsed: hintRevealed ? 1 : 0,
+        mode: "mystery",
+        xpGained: 0
+      });
+      
       hapticError();
       toast.error(`The answer was ${player.name}`);
     } else {

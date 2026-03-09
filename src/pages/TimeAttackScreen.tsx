@@ -19,6 +19,7 @@ const TIME_LIMIT = 90; // seconds
 
 export default function TimeAttackScreen() {
   const navigate = useNavigate();
+  const { trackGameResult } = useChallengeTracker();
   const { user, profile, updateProfile } = useAuth();
 
   const [round, setRound] = useState(0);
