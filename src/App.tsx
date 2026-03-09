@@ -14,6 +14,7 @@ import Stats from "./pages/Stats";
 import Leaderboard from "./pages/Leaderboard";
 import AuthPage from "./pages/AuthPage";
 import Store from "./pages/Store";
+import RanksPage from "./pages/RanksPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ function AnimatedRoutes() {
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/store" element={<Store />} />
+        <Route path="/ranks" element={<RanksPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AnimatePresence>
