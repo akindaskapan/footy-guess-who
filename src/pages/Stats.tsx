@@ -3,6 +3,37 @@ import { ArrowLeft, Flame, Trophy, Target, Gamepad2, LogIn } from "lucide-react"
 import { loadGameState } from "@/lib/gameState";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
+import { Progress } from "@/components/ui/progress";
+
+interface RankInfo {
+  label: string;
+  color: string;
+  bg: string;
+  minXP: number;
+}
+
+const RANKS: RankInfo[] = [
+  { label: "🌱 Rookie",    color: "text-green-600",   bg: "bg-green-500/15",   minXP: 0    },
+  { label: "⚽ Amateur",   color: "text-blue-500",    bg: "bg-blue-500/15",    minXP: 500  },
+  { label: "🥈 Semi-Pro",  color: "text-slate-400",   bg: "bg-slate-400/15",   minXP: 1500 },
+  { label: "🥇 Pro",       color: "text-yellow-500",  bg: "bg-yellow-500/15",  minXP: 3500 },
+  { label: "💎 Elite",     color: "text-cyan-400",    bg: "bg-cyan-400/15",    minXP: 7000 },
+  { label: "👑 Legend",    color: "text-amber-400",   bg: "bg-amber-400/15",   minXP: 15000},
+];
+
+function getRank(xp: number): RankInfo {
+  for (let i = RANKS.length - 1; i >= 0; i--) {
+    if (xp >= RANKS[i].minXP) return RANKS[i];
+  }
+  return RANKS[0];
+}
+
+function getNextRank(xp: number): RankInfo | null {
+  for (let i = 0; i < RANKS.length; i++) {
+    if (xp < RANKS[i].minXP) return RANKS[i];
+  }
+  return null; // Already at max rank
+}
 
 export default function Stats() {
   const navigate = useNavigate();
@@ -14,8 +45,27 @@ export default function Stats() {
   const streak = profile?.streak ?? localState.streak;
   const bestStreak = profile?.best_streak ?? localState.bestStreak;
   const coins = profile?.coins ?? localState.coins;
+  const xp = profile?.total_score ?? 0;
+
+  const currentRank = getRank(xp);
+  const nextRank = getNextRank(xp);
+  
+  // Calculate progress to next rank
+  let progressPercent = 100;
+  let xpNeeded = 0;
+  let xpProgress = 0;
+  
+  if (nextRank) {
+    const currentRankMinXP = currentRank.minXP;
+    const nextRankMinXP = nextRank.minXP;
+    xpProgress = xp - currentRankMinXP;
+    xpNeeded = nextRankMinXP - xp;
+    const totalXPForNextLevel = nextRankMinXP - currentRankMinXP;
+    progressPercent = (xpProgress / totalXPForNextLevel) * 100;
+  }
 
   const winRate = totalPlayed > 0 ? Math.round((totalCorrect / totalPlayed) * 100) : 0;
+
 
   const stats = [
     { icon: Gamepad2, label: "Played", value: totalPlayed, color: "text-muted-foreground" },
@@ -60,6 +110,36 @@ export default function Stats() {
             </div>
             <p className="font-display font-bold text-lg text-foreground">{profile.display_name}</p>
             <p className="text-xs text-muted-foreground font-body">XP: {profile.total_score}</p>
+          </div>
+        )}
+
+        {/* XP Progress Bar */}
+        {user && profile && (
+          <div className="rounded-2xl bg-card border border-border p-6 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className={`text-sm font-display font-semibold px-2 py-1 rounded-full ${currentRank.bg} ${currentRank.color}`}>
+                {currentRank.label}
+              </span>
+              {nextRank && (
+                <span className="text-xs text-muted-foreground font-body">
+                  {xpNeeded} XP to {nextRank.label}
+                </span>
+              )}
+            </div>
+            
+            {nextRank ? (
+              <>
+                <Progress value={progressPercent} className="h-2" />
+                <div className="flex justify-between text-xs text-muted-foreground font-body">
+                  <span>{xp.toLocaleString()} XP</span>
+                  <span>{nextRank.minXP.toLocaleString()} XP</span>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-2">
+                <span className="text-sm font-display font-bold text-primary">🏆 MAX RANK ACHIEVED! 🏆</span>
+              </div>
+            )}
           </div>
         )}
 
