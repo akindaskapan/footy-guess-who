@@ -89,9 +89,7 @@ export default function Stats() {
         {user && profile && (
           <div className="rounded-2xl bg-card border border-border p-6 space-y-3">
             <div className="flex items-center justify-between">
-              <span className={`text-sm font-display font-semibold px-2 py-1 rounded-full ${currentRank.bg} ${currentRank.color}`}>
-                {currentRank.label}
-              </span>
+              <RankBadge xp={xp} size="md" showLabel={true} />
               {nextRank && (
                 <span className="text-xs text-muted-foreground font-body">
                   {xpNeeded} XP to {nextRank.label}
