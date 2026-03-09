@@ -310,6 +310,17 @@ export default function GameScreen() {
       saveGameState(newState);
       setGameState(newState);
       saveResultToCloud(xpGained, newGuesses.length, true);
+      
+      // Track challenge progress
+      if (!isCampaign && !isChallenge) { // Only track for normal games, not campaign or challenges
+        trackGameResult({
+          won: true,
+          guesses: newGuesses.length,
+          hintsUsed: hintCount,
+          mode: isDaily ? "classic" : "classic", // All GameScreen games are classic mode
+          xpGained
+        });
+      }
 
       // Save campaign progress & show interstitial every 4 levels
       if (isCampaign && campaignLevel) {
