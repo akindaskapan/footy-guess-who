@@ -75,6 +75,7 @@ export default function GameScreen() {
   const campaignLevel = searchParams.get("level");
   const navigate = useNavigate();
   const { user, profile, updateProfile, refreshProfile } = useAuth();
+  const { trackGameResult } = useChallengeTracker();
   const isDaily = mode === "daily";
   const isHardcore = mode === "hardcore";
   const isCampaign = mode === "campaign";
