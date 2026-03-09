@@ -18,6 +18,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { fireWinConfetti, hapticSuccess, hapticError } from "@/lib/feedback";
+import { hasRankUp, getRank } from "@/lib/ranks";
+import { RankUpModal } from "@/components/RankUpModal";
 
 const MAX_GUESSES = 5;
 const MYSTERY_BONUS = 2; // 2x rewards
@@ -32,6 +34,11 @@ export default function MysteryScreen() {
   const [won, setWon] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [hintRevealed, setHintRevealed] = useState(false);
+  const [rankUpModal, setRankUpModal] = useState<{ isOpen: boolean; newRank: any; oldRank: any }>({ 
+    isOpen: false, 
+    newRank: null, 
+    oldRank: null 
+  });
 
   const puzzleNumber = useMemo(() => Math.floor(Date.now() / (1000 * 60 * 60 * 24)) % 9999, []);
 
@@ -72,12 +79,23 @@ export default function MysteryScreen() {
       setGameState(newState);
 
       if (user && profile) {
-        updateProfile({
-          total_score: (profile.total_score || 0) + xpGained,
+        const oldXP = profile.total_score || 0;
+        const updates = {
+          total_score: oldXP + xpGained,
           total_played: (profile.total_played || 0) + 1,
           total_correct: (profile.total_correct || 0) + 1,
           coins: (profile.coins || 0) + coinsGained,
-        });
+        };
+        
+        // Check for rank up
+        const newXP = oldXP + xpGained;
+        const rankUpInfo = hasRankUp(oldXP, newXP);
+        if (rankUpInfo) {
+          const oldRank = getRank(oldXP);
+          setRankUpModal({ isOpen: true, newRank: rankUpInfo, oldRank });
+        }
+        
+        updateProfile(updates);
         supabase.from("game_results").insert({
           user_id: user.id,
           player_id: player.id,
@@ -266,6 +284,14 @@ export default function MysteryScreen() {
           <GuessInput onGuess={handleGuess} disabled={gameOver} />
         </div>
       )}
+
+      {/* Rank Up Modal */}
+      <RankUpModal
+        isOpen={rankUpModal.isOpen}
+        onClose={() => setRankUpModal({ isOpen: false, newRank: null, oldRank: null })}
+        newRank={rankUpModal.newRank}
+        oldRank={rankUpModal.oldRank}
+      />
     </motion.div>
   );
 }
