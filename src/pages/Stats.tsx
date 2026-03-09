@@ -66,7 +66,6 @@ export default function Stats() {
 
   const winRate = totalPlayed > 0 ? Math.round((totalCorrect / totalPlayed) * 100) : 0;
 
-  const winRate = totalPlayed > 0 ? Math.round((totalCorrect / totalPlayed) * 100) : 0;
 
   const stats = [
     { icon: Gamepad2, label: "Played", value: totalPlayed, color: "text-muted-foreground" },
