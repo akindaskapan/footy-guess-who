@@ -4,8 +4,21 @@ import { ArrowLeft, Trophy, Calendar, Crown, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
-import { getRank } from "@/lib/ranks";
+import { getRank, RANKS } from "@/lib/ranks";
 import { RankBadge } from "@/components/RankBadge";
+
+interface LeaderboardEntry {
+  user_id: string | null;
+  display_name: string | null;
+  avatar_url: string | null;
+  total_score?: number | null;
+  total_correct?: number | null;
+  total_played?: number | null;
+  best_streak?: number | null;
+  weekly_score?: number | null;
+  weekly_wins?: number | null;
+  weekly_games?: number | null;
+}
 
 export default function Leaderboard() {
   const navigate = useNavigate();
