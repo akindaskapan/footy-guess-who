@@ -4,36 +4,8 @@ import { loadGameState } from "@/lib/gameState";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 import { Progress } from "@/components/ui/progress";
-
-interface RankInfo {
-  label: string;
-  color: string;
-  bg: string;
-  minXP: number;
-}
-
-const RANKS: RankInfo[] = [
-  { label: "🌱 Rookie",    color: "text-green-600",   bg: "bg-green-500/15",   minXP: 0    },
-  { label: "⚽ Amateur",   color: "text-blue-500",    bg: "bg-blue-500/15",    minXP: 500  },
-  { label: "🥈 Semi-Pro",  color: "text-slate-400",   bg: "bg-slate-400/15",   minXP: 1500 },
-  { label: "🥇 Pro",       color: "text-yellow-500",  bg: "bg-yellow-500/15",  minXP: 3500 },
-  { label: "💎 Elite",     color: "text-cyan-400",    bg: "bg-cyan-400/15",    minXP: 7000 },
-  { label: "👑 Legend",    color: "text-amber-400",   bg: "bg-amber-400/15",   minXP: 15000},
-];
-
-function getRank(xp: number): RankInfo {
-  for (let i = RANKS.length - 1; i >= 0; i--) {
-    if (xp >= RANKS[i].minXP) return RANKS[i];
-  }
-  return RANKS[0];
-}
-
-function getNextRank(xp: number): RankInfo | null {
-  for (let i = 0; i < RANKS.length; i++) {
-    if (xp < RANKS[i].minXP) return RANKS[i];
-  }
-  return null; // Already at max rank
-}
+import { getRank, getNextRank, getRankProgress } from "@/lib/ranks";
+import { RankBadge } from "@/components/RankBadge";
 
 export default function Stats() {
   const navigate = useNavigate();
