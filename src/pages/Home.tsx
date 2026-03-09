@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Flame, Trophy, Coins, Zap, Clock, Skull, Medal, Users, LogIn, LogOut, User, ShoppingBag, EyeOff, Timer, Map } from "lucide-react";
 import { loadGameState } from "@/lib/gameState";
 import { useAuth } from "@/contexts/AuthContext";
+import { RankBadge } from "@/components/RankBadge";
 import { motion } from "framer-motion";
 
 export default function Home() {
@@ -77,6 +78,13 @@ export default function Home() {
       path: "/store",
       iconColor: "text-accent",
     },
+    {
+      label: "Ranks",
+      desc: "View progression system",
+      icon: Medal,
+      path: "/ranks",
+      iconColor: "text-purple-500",
+    },
   ];
 
   return (
@@ -120,9 +128,12 @@ export default function Home() {
       {/* User badge */}
       {user && profile && (
         <div className="px-6 pb-2">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground font-body">
-            <User className="w-3.5 h-3.5" />
-            <span>{profile.display_name}</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground font-body">
+              <User className="w-3.5 h-3.5" />
+              <span>{profile.display_name}</span>
+            </div>
+            <RankBadge xp={profile.total_score || 0} size="sm" showLabel={true} />
           </div>
         </div>
       )}
