@@ -360,6 +360,19 @@ export default function GameScreen() {
       saveGameState(newState);
       setGameState(newState);
       saveResultToCloud(0, newGuesses.length, false);
+      
+      // Track challenge progress for loss
+      if (!isCampaign && !isChallenge) { // Only track for normal games, not campaign or challenges
+        const hintCount = Object.values(hintsUsed).filter(Boolean).length;
+        trackGameResult({
+          won: false,
+          guesses: newGuesses.length,
+          hintsUsed: hintCount,
+          mode: isDaily ? "classic" : "classic", // All GameScreen games are classic mode
+          xpGained: 0
+        });
+      }
+      
       hapticError();
       if (isCampaign && campaignLevel) {
         saveCampaignResult(parseInt(campaignLevel), { guesses: newGuesses, won: false, playerName: player.name });
