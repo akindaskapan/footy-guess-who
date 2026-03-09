@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Trophy, Calendar, Crown } from "lucide-react";
+import { ArrowLeft, Trophy, Calendar, Crown, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
@@ -16,6 +16,29 @@ interface LeaderboardEntry {
   weekly_score?: number | null;
   weekly_wins?: number | null;
   weekly_games?: number | null;
+}
+
+interface RankInfo {
+  label: string;
+  color: string;
+  bg: string;
+  minXP: number;
+}
+
+const RANKS: RankInfo[] = [
+  { label: "🌱 Rookie",    color: "text-green-600",   bg: "bg-green-500/15",   minXP: 0    },
+  { label: "⚽ Amateur",   color: "text-blue-500",    bg: "bg-blue-500/15",    minXP: 500  },
+  { label: "🥈 Semi-Pro",  color: "text-slate-400",   bg: "bg-slate-400/15",   minXP: 1500 },
+  { label: "🥇 Pro",       color: "text-yellow-500",  bg: "bg-yellow-500/15",  minXP: 3500 },
+  { label: "💎 Elite",     color: "text-cyan-400",    bg: "bg-cyan-400/15",    minXP: 7000 },
+  { label: "👑 Legend",    color: "text-amber-400",   bg: "bg-amber-400/15",   minXP: 15000},
+];
+
+function getRank(xp: number): RankInfo {
+  for (let i = RANKS.length - 1; i >= 0; i--) {
+    if (xp >= RANKS[i].minXP) return RANKS[i];
+  }
+  return RANKS[0];
 }
 
 export default function Leaderboard() {
@@ -94,6 +117,20 @@ export default function Leaderboard() {
         </button>
       </div>
 
+      {/* Rank Legend */}
+      <div className="px-4 pb-3">
+        <div className="flex gap-1.5 flex-wrap">
+          {RANKS.map((r) => (
+            <span
+              key={r.label}
+              className={`text-[10px] font-display font-semibold px-2 py-0.5 rounded-full ${r.bg} ${r.color}`}
+            >
+              {r.label}
+            </span>
+          ))}
+        </div>
+      </div>
+
       {/* List */}
       <div className="px-4 space-y-2 pb-6">
         {loading ? (
@@ -108,10 +145,11 @@ export default function Leaderboard() {
         ) : (
           entries.map((entry, i) => {
             const isMe = user?.id === entry.user_id;
-            const score = tab === "alltime" ? entry.total_score : entry.weekly_score;
+            const xp = tab === "alltime" ? (entry.total_score ?? 0) : (entry.weekly_score ?? 0);
+            const rank = getRank(tab === "alltime" ? xp : (entry.total_score ?? xp));
             const subtitle =
               tab === "alltime"
-                ? `${entry.total_correct ?? 0} wins · ${entry.best_streak ?? 0}🔥`
+                ? `${entry.total_correct ?? 0} wins · ${entry.best_streak ?? 0}🔥 streak`
                 : `${entry.weekly_wins ?? 0} wins · ${entry.weekly_games ?? 0} games`;
 
             return (
@@ -126,22 +164,38 @@ export default function Leaderboard() {
                     : "border-border bg-card"
                 }`}
               >
-                <span className="w-8 text-center font-display font-bold text-sm">
+                {/* Position */}
+                <span className="w-8 text-center font-display font-bold text-sm shrink-0">
                   {getMedal(i)}
                 </span>
-                <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-xs font-display font-bold text-foreground">
+
+                {/* Avatar */}
+                <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center text-sm font-display font-bold text-foreground shrink-0">
                   {(entry.display_name || "?")[0].toUpperCase()}
                 </div>
+
+                {/* Name + rank + subtitle */}
                 <div className="flex-1 min-w-0">
-                  <p className="font-display font-semibold text-sm text-foreground truncate">
-                    {entry.display_name || "Anonymous"}
-                    {isMe && <span className="text-primary ml-1">(you)</span>}
-                  </p>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <p className="font-display font-semibold text-sm text-foreground truncate">
+                      {entry.display_name || "Anonymous"}
+                      {isMe && <span className="text-primary ml-1">(you)</span>}
+                    </p>
+                    <span className={`text-[10px] font-display font-semibold px-1.5 py-0.5 rounded-full shrink-0 ${rank.bg} ${rank.color}`}>
+                      {rank.label}
+                    </span>
+                  </div>
                   <p className="text-xs text-muted-foreground font-body">{subtitle}</p>
                 </div>
-                <span className="font-display font-bold text-accent text-sm">
-                  {score ?? 0}
-                </span>
+
+                {/* XP */}
+                <div className="flex items-center gap-0.5 shrink-0">
+                  <Zap className="w-3.5 h-3.5 text-accent" />
+                  <span className="font-display font-bold text-accent text-sm">
+                    {xp.toLocaleString()}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground font-body ml-0.5">XP</span>
+                </div>
               </motion.div>
             );
           })
