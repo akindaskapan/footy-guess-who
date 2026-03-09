@@ -45,6 +45,30 @@ export default function Stats() {
   const streak = profile?.streak ?? localState.streak;
   const bestStreak = profile?.best_streak ?? localState.bestStreak;
   const coins = profile?.coins ?? localState.coins;
+  const xp = profile?.total_score ?? 0;
+
+  const currentRank = getRank(xp);
+  const nextRank = getNextRank(xp);
+  
+  // Calculate progress to next rank
+  let progressPercent = 100;
+  let xpNeeded = 0;
+  let xpProgress = 0;
+  
+  if (nextRank) {
+    const currentRankMinXP = currentRank.minXP;
+    const nextRankMinXP = nextRank.minXP;
+    xpProgress = xp - currentRankMinXP;
+    xpNeeded = nextRankMinXP - xp;
+    const totalXPForNextLevel = nextRankMinXP - currentRankMinXP;
+    progressPercent = (xpProgress / totalXPForNextLevel) * 100;
+  }
+
+  const totalPlayed = profile?.total_played ?? localState.totalPlayed;
+  const totalCorrect = profile?.total_correct ?? localState.totalCorrect;
+  const streak = profile?.streak ?? localState.streak;
+  const bestStreak = profile?.best_streak ?? localState.bestStreak;
+  const coins = profile?.coins ?? localState.coins;
 
   const winRate = totalPlayed > 0 ? Math.round((totalCorrect / totalPlayed) * 100) : 0;
 
