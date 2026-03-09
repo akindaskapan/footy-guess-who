@@ -32,6 +32,7 @@ import { CAMPAIGN_LEVELS, getLevelProgress, saveLevelProgress } from "@/pages/Ca
 import { fireWinConfetti, hapticSuccess, hapticError } from "@/lib/feedback";
 import { hasRankUp, getRank } from "@/lib/ranks";
 import { RankUpModal } from "@/components/RankUpModal";
+import { useChallengeTracker } from "@/hooks/useChallengeTracker";
 import { showInterstitialAd, showRewardedAd, initializeAds } from "@/lib/adService";
 
 const MAX_GUESSES = 5;
@@ -74,6 +75,7 @@ export default function GameScreen() {
   const campaignLevel = searchParams.get("level");
   const navigate = useNavigate();
   const { user, profile, updateProfile, refreshProfile } = useAuth();
+  const { trackGameResult } = useChallengeTracker();
   const isDaily = mode === "daily";
   const isHardcore = mode === "hardcore";
   const isCampaign = mode === "campaign";
@@ -308,6 +310,17 @@ export default function GameScreen() {
       saveGameState(newState);
       setGameState(newState);
       saveResultToCloud(xpGained, newGuesses.length, true);
+      
+      // Track challenge progress
+      if (!isCampaign && !isChallenge) { // Only track for normal games, not campaign or challenges
+        trackGameResult({
+          won: true,
+          guesses: newGuesses.length,
+          hintsUsed: hintCount,
+          mode: isDaily ? "classic" : "classic", // All GameScreen games are classic mode
+          xpGained
+        });
+      }
 
       // Save campaign progress & show interstitial every 4 levels
       if (isCampaign && campaignLevel) {
@@ -347,6 +360,19 @@ export default function GameScreen() {
       saveGameState(newState);
       setGameState(newState);
       saveResultToCloud(0, newGuesses.length, false);
+      
+      // Track challenge progress for loss
+      if (!isCampaign && !isChallenge) { // Only track for normal games, not campaign or challenges
+        const hintCount = Object.values(hintsUsed).filter(Boolean).length;
+        trackGameResult({
+          won: false,
+          guesses: newGuesses.length,
+          hintsUsed: hintCount,
+          mode: isDaily ? "classic" : "classic", // All GameScreen games are classic mode
+          xpGained: 0
+        });
+      }
+      
       hapticError();
       if (isCampaign && campaignLevel) {
         saveCampaignResult(parseInt(campaignLevel), { guesses: newGuesses, won: false, playerName: player.name });

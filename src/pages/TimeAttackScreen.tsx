@@ -13,12 +13,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { fireWinConfetti, hapticSuccess, hapticError, hapticLight } from "@/lib/feedback";
 import { hasRankUp, getRank } from "@/lib/ranks";
 import { RankUpModal } from "@/components/RankUpModal";
+import { useChallengeTracker } from "@/hooks/useChallengeTracker";
 
 const TOTAL_ROUNDS = 10;
 const TIME_LIMIT = 90; // seconds
 
 export default function TimeAttackScreen() {
   const navigate = useNavigate();
+  const { trackGameResult } = useChallengeTracker();
   const { user, profile, updateProfile } = useAuth();
 
   const [round, setRound] = useState(0);

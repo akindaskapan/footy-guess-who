@@ -27,8 +27,8 @@ export interface ChallengeState {
   lastWeeklyClaimDate: string;
   dailyChallenges: DailyChallenge[];
   weeklyChallenges: WeeklyChallenge[];
-  weeklyProgress: Record<string, number>;
-  dailyProgress: Record<string, number>;
+  weeklyProgress: Record<string, any>;
+  dailyProgress: Record<string, any>;
 }
 
 // Generate daily challenges based on date
