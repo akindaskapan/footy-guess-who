@@ -7,8 +7,8 @@ import { RankInfo } from "@/lib/ranks";
 interface RankUpModalProps {
   isOpen: boolean;
   onClose: () => void;
-  newRank: RankInfo;
-  oldRank: RankInfo;
+  newRank: RankInfo | null;
+  oldRank: RankInfo | null;
 }
 
 export function RankUpModal({ isOpen, onClose, newRank, oldRank }: RankUpModalProps) {
@@ -16,16 +16,16 @@ export function RankUpModal({ isOpen, onClose, newRank, oldRank }: RankUpModalPr
 
   useEffect(() => {
     if (isOpen && !showConfetti) {
-      // Delay confetti slightly for better visual impact
       const timer = setTimeout(() => {
         fireWinConfetti();
         setShowConfetti(true);
       }, 300);
       return () => clearTimeout(timer);
     }
+    if (!isOpen) setShowConfetti(false);
   }, [isOpen, showConfetti]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !newRank || !oldRank) return null;
 
   return (
     <AnimatePresence>
