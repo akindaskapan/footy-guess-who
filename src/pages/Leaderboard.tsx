@@ -4,42 +4,8 @@ import { ArrowLeft, Trophy, Calendar, Crown, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
-
-interface LeaderboardEntry {
-  user_id: string | null;
-  display_name: string | null;
-  avatar_url: string | null;
-  total_score?: number | null;
-  total_correct?: number | null;
-  total_played?: number | null;
-  best_streak?: number | null;
-  weekly_score?: number | null;
-  weekly_wins?: number | null;
-  weekly_games?: number | null;
-}
-
-interface RankInfo {
-  label: string;
-  color: string;
-  bg: string;
-  minXP: number;
-}
-
-const RANKS: RankInfo[] = [
-  { label: "🌱 Rookie",    color: "text-green-600",   bg: "bg-green-500/15",   minXP: 0    },
-  { label: "⚽ Amateur",   color: "text-blue-500",    bg: "bg-blue-500/15",    minXP: 500  },
-  { label: "🥈 Semi-Pro",  color: "text-slate-400",   bg: "bg-slate-400/15",   minXP: 1500 },
-  { label: "🥇 Pro",       color: "text-yellow-500",  bg: "bg-yellow-500/15",  minXP: 3500 },
-  { label: "💎 Elite",     color: "text-cyan-400",    bg: "bg-cyan-400/15",    minXP: 7000 },
-  { label: "👑 Legend",    color: "text-amber-400",   bg: "bg-amber-400/15",   minXP: 15000},
-];
-
-function getRank(xp: number): RankInfo {
-  for (let i = RANKS.length - 1; i >= 0; i--) {
-    if (xp >= RANKS[i].minXP) return RANKS[i];
-  }
-  return RANKS[0];
-}
+import { getRank } from "@/lib/ranks";
+import { RankBadge } from "@/components/RankBadge";
 
 export default function Leaderboard() {
   const navigate = useNavigate();
